@@ -8,11 +8,10 @@ from PIL import Image
 
 
 class Bottles(threading.Thread):
-    def __init__(self, cam_number, gender_cam, threshold=0.02):
+    def __init__(self, cam_number, gender_cam, threshold):
         threading.Thread.__init__(self)
-
-        self.net = jetson.inference.detectNet("ssd-mobilenet-v2", threshold)
-
+        self.th = threshold
+        self.net = jetson.inference.detectNet("ssd-mobilenet-v2", 0.01)
         self.camera_number = cam_number
         self.gender_cam = gender_cam
 
@@ -28,7 +27,7 @@ class Bottles(threading.Thread):
         self.return_camera_test = []
         for x in range(len(self.camera_number)):
             self.return_camera_test.append({
-                "ID": self.camera_number[0],
+                "ID": self.camera_number[x],
                 "Name": "shelf_{}_camera".format(x),
                 "file": "shelf_{}_camera.jpg".format(x),
                 "file_AI":"shelf_{}_camera_AI.jpg".format(x),
@@ -46,12 +45,12 @@ class Bottles(threading.Thread):
         self.male_detected = False
         self.female_detected = False
 
-        faceProto = "opencv_face_detector.pbtxt"
-        faceModel = "opencv_face_detector_uint8.pb"
-        ageProto = "age_deploy.prototxt"
-        ageModel = "age_net.caffemodel"
-        genderProto = "gender_deploy.prototxt"
-        genderModel = "gender_net.caffemodel"
+        faceProto = "/home/misbah/dev/V3/opencv_face_detector.pbtxt"
+        faceModel = "/home/misbah/dev/V3/opencv_face_detector_uint8.pb"
+        ageProto = "/home/misbah/dev/V3/age_deploy.prototxt"
+        ageModel = "/home/misbah/dev/V3/age_net.caffemodel"
+        genderProto = "/home/misbah/dev/V3/gender_deploy.prototxt"
+        genderModel = "/home/misbah/dev/V3/gender_net.caffemodel"
 
         self.MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
         self.ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
@@ -116,20 +115,20 @@ class Bottles(threading.Thread):
 
             # write all bottle images
             for x in range(len(self.camera_number)):
-                cap = cv2.VideoCapture(x)
-                time.sleep(0.1)
+                cap = cv2.VideoCapture(self.return_camera_test[x]["ID"])
+                #time.sleep(0.1)
                 ret, frame = cap.read()
-                img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                im_pil = Image.fromarray(img)
+                #img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                im_pil = Image.fromarray(frame)
 
                 im_pil.save(self.return_camera_test[x]["file"], format='JPEG')
 
                 cap.release()
-                time.sleep(0.3)
+                #time.sleep(0.3)
 
             # write gender image
             cap = cv2.VideoCapture(self.gender_cam)
-            time.sleep(0.1)
+            #time.sleep(0.1)
             ret, frame = cap.read()
             frame = cv2.resize(frame, (640, 480))  # 420,180
             resultImg, faceBoxes = self.highlightFace(self.faceNet, frame, 0.4)
@@ -168,11 +167,12 @@ class Bottles(threading.Thread):
             im_pil.save("FaceImage.jpg", format='JPEG')
 
             cap.release()
-            time.sleep(0.3)
+            #time.sleep(0.3)
 
             # read all images
             for x in range(5):
                 frame = cv2.imread(self.return_camera_test[x]["file"])
+                frame = cv2.resize(frame,(1640,1480))
                 imgCuda = jetson.utils.cudaFromNumpy(frame)
                 detections = self.net.Detect(imgCuda)
 
