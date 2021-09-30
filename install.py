@@ -15,7 +15,8 @@ def install_dep():
     os.system('sudo {}/jetson-inference/build/make install'.format(HOME_DIR))
     os.system('sudo {}/jetson-inference/build/ldconfig'.format(HOME_DIR))
     print('All done Rebooting in 5 seconds')
-    time.sleep(5)
+    key = input('Press any key to done')
+    #if len(key)>0:
     os.system('sudo reboot')
     pass
 
