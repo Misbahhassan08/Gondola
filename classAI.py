@@ -171,7 +171,7 @@ class AI(threading.Thread):
             #time.sleep(0.3)
 
             # read all images
-            for x in range(5):
+            for x in range(len(self.camera_number)):
                 frame = cv2.imread(self.return_camera_test[x]["file"])
                 frame = cv2.resize(frame,(1640,1480))
                 imgCuda = jetson.utils.cudaFromNumpy(frame)
