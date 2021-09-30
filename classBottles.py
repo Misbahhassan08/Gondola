@@ -8,13 +8,14 @@ from PIL import Image
 
 
 class Bottles(threading.Thread):
-    def __init__(self, cam_number, gender_cam, threshold):
+    def __init__(self, ROOT_PATH , cam_number, gender_cam, threshold):
         threading.Thread.__init__(self)
         self.th = threshold
         self.net = jetson.inference.detectNet("ssd-mobilenet-v2", 0.01)
         self.camera_number = cam_number
         self.gender_cam = gender_cam
 
+        self.ROOT_PATH = ROOT_PATH
         self.Max_cameras = len(self.camera_number)
 
         self.average = [0.0, 0.0, 0.0, 0.0, 0.0]
@@ -45,12 +46,12 @@ class Bottles(threading.Thread):
         self.male_detected = False
         self.female_detected = False
 
-        faceProto = "/home/misbah/dev/V3/opencv_face_detector.pbtxt"
-        faceModel = "/home/misbah/dev/V3/opencv_face_detector_uint8.pb"
-        ageProto = "/home/misbah/dev/V3/age_deploy.prototxt"
-        ageModel = "/home/misbah/dev/V3/age_net.caffemodel"
-        genderProto = "/home/misbah/dev/V3/gender_deploy.prototxt"
-        genderModel = "/home/misbah/dev/V3/gender_net.caffemodel"
+        faceProto = "{}/gender_files/models/opencv_face_detector.pbtxt"
+        faceModel = "{}/gender_files/models/opencv_face_detector_uint8.pb"
+        ageProto = "{}/gender_files/models/age_deploy.prototxt"
+        ageModel = "{}/gender_files/models/age_net.caffemodel"
+        genderProto = "{}/gender_files/models/gender_deploy.prototxt"
+        genderModel = "{}/gender_files/models/gender_net.caffemodel"
 
         self.MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
         self.ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']

@@ -9,6 +9,8 @@ import requests
 import screeninfo
 import numpy as np
 
+import os 
+
 
 class MainCode:
     def __init__(self):
@@ -26,9 +28,14 @@ class MainCode:
         GPIO.setup(self.input_pin1, GPIO.IN)
         GPIO.setup(self.input_pin2, GPIO.IN)
 
-        self.bottle = Bottles(cam_number=self.shelf, gender_cam=self.camera_gender, threshold = 0.01)
+
+        self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        self.bottle = Bottles(self.ROOT_DIR, cam_number=self.shelf, gender_cam=self.camera_gender, threshold = 0.01)
 
         self.url = "http://inovat-ioi.com/app_api/index.php/Admin/updateStockByShelf"
+
+        
 
     def update_shelf_to_cloud(self):
         for shelf_id in range(len(self.shelf)):
@@ -98,14 +105,16 @@ if __name__ == '__main__':
     cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,
                           cv2.WINDOW_FULLSCREEN)
 
-    manImage1 = "/home/misbah/dev/V3/b1m.jpg"
-    womanImage1 = "/home/misbah/dev/V3/b1f.jpg"
+    mainobj = MainCode()
 
-    manImage2 = "/home/misbah/dev/V3/b2m.jpg"
-    womanImage2 = "/home/misbah/dev/V3/b2f.jpg"
+    manImage1 = "{}/gender_files/b1m.jpg".format(mainobj.ROOT_DIR)
+    womanImage1 = "{}/gender_files/b1f.jpg".format(mainobj.ROOT_DIR)
+
+    manImage2 = "{}/gender_files/b2m.jpg".format(mainobj.ROOT_DIR)
+    womanImage2 = "{}/gender_files/b2f.jpg".format(mainobj.ROOT_DIR)
 
     image = cv2.imread(manImage1)
-    mainobj = MainCode()
+    
 
     # check status of all cameras
     status = mainobj.check_bottle_cameras()
