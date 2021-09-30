@@ -6,7 +6,7 @@ def install_dep():
     HOME_DIR = Path.home()
 
     os.system('sudo apt-get update')
-    os.system('sudo apt-get install git cmake libpython3-dev python3-numpy python3-pip nano')
+    os.system('sudo apt-get install git cmake libpython3-dev python3-numpy python3-pip nano python3-scipy python3-h5py python3-pil  -y')
     os.system('sudo pip3 install screeninfo')
     os.system('cd {} && git clone --recursive https://github.com/dusty-nv/jetson-inference')
     os.system('mkdir {}/jetson-inference/build'.format(HOME_DIR))
