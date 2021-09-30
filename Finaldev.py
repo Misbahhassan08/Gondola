@@ -5,8 +5,7 @@ try:
     import jetson.utils
     import time
     import RPi.GPIO as GPIO
-    from classGender import Gender
-    from classBottles import Bottles
+    from classAI import AI
     import requests
     import screeninfo
     import numpy as np
@@ -39,7 +38,7 @@ class MainCode:
 
         self.ID = getpass.getuser() # machine ID should be the unique 
 
-        self.bottle = Bottles(self.ROOT_DIR, cam_number=self.shelf, gender_cam=self.camera_gender, threshold = 0.01)
+        self.bottle = AI(self.ROOT_DIR, cam_number=self.shelf, gender_cam=self.camera_gender, threshold = 0.01)
 
         self.url = "http://inovat-ioi.com/app_api/index.php/Admin/updateStockByShelf"
 
@@ -143,6 +142,8 @@ if __name__ == '__main__':
             elif values[0] == 0 and values[1] == 1:
                 image = cv2.imread(manImage2)
                 # image = cv2.resize(image,(width,height))
+            else:
+                image = cv2.imread(manImage1)
             pass
         elif mf[1] == True:
             if values[0] == 1 and values[1] == 0:
@@ -151,6 +152,8 @@ if __name__ == '__main__':
             elif values[0] == 0 and values[1] == 1:
                 image = cv2.imread(womanImage2)
                 # image = cv2.resize(image,(width,height))
+            else:
+                image = cv2.imread(womanImage1)
             pass
         else:
             image = cv2.imread(manImage1)

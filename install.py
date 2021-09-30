@@ -7,6 +7,7 @@ def install_dep():
 
     os.system('sudo apt-get update')
     os.system('sudo apt-get install git cmake libpython3-dev python3-numpy python3-pip')
+    os.system('sudo pip3 install screeninfo')
     os.system('cd {}'.format(HOME_DIR))
     os.system('git clone --recursive https://github.com/dusty-nv/jetson-inference')
     os.system('cd jetson-inference')

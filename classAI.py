@@ -7,7 +7,7 @@ import io
 from PIL import Image
 
 
-class Bottles(threading.Thread):
+class AI(threading.Thread):
     def __init__(self, ROOT_PATH , cam_number, gender_cam, threshold):
         threading.Thread.__init__(self)
         self.th = threshold
