@@ -46,12 +46,12 @@ class AI(threading.Thread):
         self.male_detected = False
         self.female_detected = False
 
-        faceProto = "{}/gender_files/models/opencv_face_detector.pbtxt"
-        faceModel = "{}/gender_files/models/opencv_face_detector_uint8.pb"
-        ageProto = "{}/gender_files/models/age_deploy.prototxt"
-        ageModel = "{}/gender_files/models/age_net.caffemodel"
-        genderProto = "{}/gender_files/models/gender_deploy.prototxt"
-        genderModel = "{}/gender_files/models/gender_net.caffemodel"
+        faceProto = '{}/gender_files/models/opencv_face_detector.pbtxt'.format(self.ROOT_PATH)
+        faceModel = '{}/gender_files/models/opencv_face_detector_uint8.pb'.format(self.ROOT_PATH)
+        ageProto = '{}/gender_files/models/age_deploy.prototxt'.format(self.ROOT_PATH)
+        ageModel = '{}/gender_files/models/age_net.caffemodel'.format(self.ROOT_PATH)
+        genderProto = '{}/gender_files/models/gender_deploy.prototxt'.format(self.ROOT_PATH)
+        genderModel = '{}/gender_files/models/gender_net.caffemodel'.format(self.ROOT_PATH)
 
         self.MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
         self.ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
