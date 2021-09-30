@@ -3,8 +3,19 @@ sudo apt-get install git
 git clone https://github.com/Misbahhassan08/Gondola.git
 
 - auto start -----------------------------------------
-sudo apt-get install nano
-sudo nano /home/jetsonnano_user_name/.bashrc
-
-//add this line in the end of file
-sudo python3 /home/jetsonnano_user_name/Gondola/Finaldev.py
+1- cd /home/jetson_username_here/.config/autostart
+2- sudo nano pythonscript.desktop
+   
+   // copy and paste lower lines in file 
+Desktop Entry]
+Version=1.0
+Name=Gondola
+Comment=AiVision
+Exec=/usr/bin/lxterminal -e /home/jetsonnano_username/startscript.sh
+Icon=preferences-desktop-remote-desktop
+NoDisplay=false
+StartupNotify=true
+Type=Application
+X-GNOME-Autostart-Phase=Application
+X-GNOME-AutoRestart=true
+X-GNOME-UsesNotification=true
