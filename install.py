@@ -10,10 +10,17 @@ def install_dep():
     os.system('sudo pip3 install screeninfo')
     os.system('git clone --recursive https://github.com/dusty-nv/jetson-inference')
     os.system('mkdir {}/jetson-inference/build'.format(HOME_DIR))
+<<<<<<< HEAD
     os.system('cd {}/jetson-inference/build && sudo cmake ../'.format(HOME_DIR))
     os.system('cd {}/jetson-inference/build && sudo make -j$(nproc)'.format(HOME_DIR))
     os.system('cd {}/jetson-inference/build && sudo make install'.format(HOME_DIR))
     os.system('cd {}/jetson-inference/build && sudo ldconfig'.format(HOME_DIR))
+=======
+    os.system('{}/jetson-inference/build cmake ../'.format(HOME_DIR))
+    os.system('{}/jetson-inference/build make -j$(nproc)'.format(HOME_DIR))
+    os.system('sudo {}/jetson-inference/build make install'.format(HOME_DIR))
+    os.system('sudo {}/jetson-inference/build ldconfig'.format(HOME_DIR))
+>>>>>>> 2491dfd6476a8561fac55da32aea21981a29d8a2
     print('All done Rebooting in 5 seconds')
     key = input('Press any key to done')
     #if len(key)>0:
