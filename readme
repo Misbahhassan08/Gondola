@@ -35,3 +35,5 @@ X-GNOME-AutoRestart=true
 X-GNOME-UsesNotification=true
 
 6- sudo reboot 
+
+//------------ END -------------------------------------------------
