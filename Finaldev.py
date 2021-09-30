@@ -1,15 +1,21 @@
-import cv2
-import jetson.inference
-import jetson.utils
-import time
-import RPi.GPIO as GPIO
-from classGender import Gender
-from classBottles import Bottles
-import requests
-import screeninfo
-import numpy as np
+import install
+try:
+    import cv2
+    import jetson.inference
+    import jetson.utils
+    import time
+    import RPi.GPIO as GPIO
+    from classGender import Gender
+    from classBottles import Bottles
+    import requests
+    import screeninfo
+    import numpy as np
+except Exception as error:
+    print('Installing libs now ..')
+    install.install_dep()
 
 import os 
+import getpass
 
 
 class MainCode:
@@ -30,6 +36,8 @@ class MainCode:
 
 
         self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        self.ID = getpass.getuser() # machine ID should be the unique 
 
         self.bottle = Bottles(self.ROOT_DIR, cam_number=self.shelf, gender_cam=self.camera_gender, threshold = 0.01)
 
