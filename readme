@@ -1,2 +1,10 @@
-1- sudo apt-get install git
-2- git clone https://github.com/Misbahhassan08/Gondola.git
+- cloning repo ---------------------------------------
+sudo apt-get install git
+git clone https://github.com/Misbahhassan08/Gondola.git
+
+- auto start -----------------------------------------
+sudo apt-get install nano
+sudo nano /home/jetsonnano_user_name/.bashrc
+
+//add this line in the end of file
+sudo python3 /home/jetsonnano_user_name/Gondola/Finaldev.py
