@@ -114,11 +114,11 @@ if __name__ == '__main__':
 
     mainobj = MainCode()
 
-    manImage1 =  '{}/gender_files/input_images/b1m.jpg'.format(mainobj.ROOT_DIR)
-    womanImage1 = '{}/gender_files/input_images/b1f.jpg'.format(mainobj.ROOT_DIR)
+    manImage1 =  '{}/gender_files/Input_images/b1m.jpg'.format(mainobj.ROOT_DIR)
+    womanImage1 = '{}/gender_files/Input_images/b1f.jpg'.format(mainobj.ROOT_DIR)
 
-    manImage2 = '{}/gender_files/input_images/b2m.jpg'.format(mainobj.ROOT_DIR)
-    womanImage2 = '{}/gender_files/input_images/b2f.jpg'.format(mainobj.ROOT_DIR)
+    manImage2 = '{}/gender_files/Input_images/b2m.jpg'.format(mainobj.ROOT_DIR)
+    womanImage2 = '{}/gender_files/Input_images/b2f.jpg'.format(mainobj.ROOT_DIR)
 
     image = cv2.imread(manImage1)
     
