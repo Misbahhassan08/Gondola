@@ -58,6 +58,18 @@ X-GNOME-UsesNotification=true
     os.system('cd {}/jetson-inference/build && sudo make install'.format(HOME_DIR))
     os.system('cd {}/jetson-inference/build && sudo ldconfig'.format(HOME_DIR))
 
+
+    # ----------------- installing pillow -----------------
+
+    os.system('sudo apt-get update')
+    os.system('sudo apt-get install libjpeg-dev -y')
+    os.system('sudo apt-get install zlib1g-dev -y')
+    os.system('sudo apt-get install libfreetype6-dev -y')
+    os.system('sudo apt-get install liblcms1-dev -y')
+    os.system('sudo apt-get install libopenjp2-7 -y')
+    os.system('sudo apt-get install libtiff5 -y')
+    os.system('sudo pip3 install pillow')
+
     print('All done Rebooting in 5 seconds')
     key = input('Press any key to done')
     #if len(key)>0:
