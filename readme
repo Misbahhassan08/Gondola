@@ -44,7 +44,7 @@ X-GNOME-UsesNotification=true
 
 //------------ END -------------------------------------------------
 
-  // IF you face grenn screen issue reboot the jetson nano and start from here 
+  // IF Facing green screen issue reboot the jetson nano and start from here 
   
  1- cd /home/gondola6/jetson-inference/tools
  2- ./download-models.sh
