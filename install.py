@@ -12,50 +12,43 @@ def install_dep():
     os.system('sudo pip3 install screeninfo')
 
     # ----------------- auto start script -----------------------------------------------------------------
-    try:
-        script_file = '{}/startscript.sh'.format(HOME_DIR)
-        if (Path.exists(script_file) == False):
-            outFileName = '{}/startscript.sh'.format(HOME_DIR)
-            outFile=open(outFileName, "w")
-            outFile.write("""
-            #!/bin/bash
-            /usr/bin/python3 {}/Gondola/Finaldev.py
-            """.format(HOME_DIR))
-            outFile.close()
-            os.system('sudo chmod +x {}/startscript.sh'.format(HOME_DIR))
-            pass
-        
+    script_file = '{}/startscript.sh'.format(HOME_DIR)
+    if (Path.exists(script_file) == False):
+        outFileName = '{}/startscript.sh'.format(HOME_DIR)
+        outFile=open(outFileName, "w")
+        outFile.write("""
+        #!/bin/bash
+        /usr/bin/python3 {}/Gondola/Finaldev.py
+        """.format(HOME_DIR))
+        outFile.close()
+        os.system('sudo chmod +x {}/startscript.sh'.format(HOME_DIR))
+        pass
+    
 
+    outFileName = '{}/.config/autostart/pythonscript.desktop'.format(HOME_DIR)
+    if (Path.exists(outFileName) == False):
         outFileName = '{}/.config/autostart/pythonscript.desktop'.format(HOME_DIR)
-        if (Path.exists(outFileName) == False):
-            outFileName = '{}/.config/autostart/pythonscript.desktop'.format(HOME_DIR)
-            outFile=open(outFileName, "w")
-            outFile.write("""
-            Desktop Entry]
-            Version=1.0
-            Name=Gondola
-            Comment=AiVision
-            Exec=/usr/bin/lxterminal -e {}/startscript.sh
-            Icon=preferences-desktop-remote-desktop
-            NoDisplay=false
-            StartupNotify=true
-            Type=Application
-            X-GNOME-Autostart-Phase=Application
-            X-GNOME-AutoRestart=true
-            X-GNOME-UsesNotification=true
-            """.format(HOME_DIR))
-            outFile.close()
-            pass
-        
-    except  Exception as error:
-        print(error)
-        v = str(input('press a to restart b to continue'))
-        if v == "a" or v == "A":
-            os.system('sudo reboot')
-        else:
-            pass
+        outFile=open(outFileName, "w")
+        outFile.write("""
+        Desktop Entry]
+        Version=1.0
+        Name=Gondola
+        Comment=AiVision
+        Exec=/usr/bin/lxterminal -e {}/startscript.sh
+        Icon=preferences-desktop-remote-desktop
+        NoDisplay=false
+        StartupNotify=true
+        Type=Application
+        X-GNOME-Autostart-Phase=Application
+        X-GNOME-AutoRestart=true
+        X-GNOME-UsesNotification=true
+        """.format(HOME_DIR))
+        outFile.close()
+        pass
 
-
+    v = str(input('press a to restart b to continue'))
+    if v == "a" or v == "A":
+        os.system('sudo reboot')
     os.system('cd {} && git clone --recursive https://github.com/dusty-nv/jetson-inference'.format(HOME_DIR))
     os.system('mkdir {}/jetson-inference/build'.format(HOME_DIR))
 
