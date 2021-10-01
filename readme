@@ -1,4 +1,4 @@
-Note : change JETSON_USERNAME to your jetson nano username otherwise program failed to start
+Note : change gondola6 to your jetson nano username otherwise program failed to start
 
 
 - cloning repo ---------------------------------------
@@ -7,25 +7,29 @@ Note : change JETSON_USERNAME to your jetson nano username otherwise program fai
 
 - auto start -----------------------------------------
 
-1- sudo nano /home/JETSON_USERNAME/startscript.sh
+0 - sudo apt-get update 
+1- sudo apt-get upgrade -y 
+2- sudo apt-get install nano
+3- sudo nano /home/gondola6/startscript.sh
    // copy and paste the lines 
 
 #!/bin/bash
-cd /home/JETSON_USERNAME/Gondola && git pull
-/usr/bin/python3 /home/JETSON_USERNAME/Gondola/Finaldev.py
+/usr/bin/python3 /home/gondola6/Gondola/Finaldev.py
 
-2- cd /home/JETSON_USERNAME/
-3- sudo chmod +x startscript.sh
-4- cd /home/JETSON_USERNAME/.config/autostart
-5- sudo nano pythonscript.desktop
+ // End of file here  ---- press CTRL+X , Press Y, Press Enter 
+
+4- cd /home/gondola6/
+5- sudo chmod +x startscript.sh
+6- cd /home/gondola6/.config/autostart
+7- sudo nano pythonscript.desktop
    
    // copy and paste lower lines in file 
 
-Desktop Entry]
+[Desktop Entry]
 Version=1.0
 Name=Gondola
 Comment=AiVision
-Exec=/usr/bin/lxterminal -e /home/JETSON_USERNAME/startscript.sh
+Exec=/usr/bin/lxterminal -e /home/gondola6/startscript.sh
 Icon=preferences-desktop-remote-desktop
 NoDisplay=false
 StartupNotify=true
@@ -34,6 +38,17 @@ X-GNOME-Autostart-Phase=Application
 X-GNOME-AutoRestart=true
 X-GNOME-UsesNotification=true
 
-6- sudo reboot 
+// End of file here  ---- press CTRL+X , Press Y, Press Enter
+
+8- sudo reboot 
 
 //------------ END -------------------------------------------------
+
+  // IF Facing green screen issue reboot the jetson nano and start from here 
+  
+ 1- cd /home/gondola6/jetson-inference/tools
+ 2- ./download-models.sh
+ 
+  // After that de-select all options only select SSD-MOBILENET-V2 and press enter
+ 
+ 
