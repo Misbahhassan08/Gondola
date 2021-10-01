@@ -18,8 +18,8 @@ def install_dep():
         outFileName = '{}/startscript.sh'.format(HOME_DIR)
         outFile=open(outFileName, "w")
         outFile.write("""
-        #!/bin/bash
-        /usr/bin/python3 {}/Gondola/Finaldev.py
+#!/bin/bash
+/usr/bin/python3 {}/Gondola/Finaldev.py
         """.format(HOME_DIR))
         outFile.close()
         os.system('sudo chmod +x {}/startscript.sh'.format(HOME_DIR))
@@ -31,18 +31,18 @@ def install_dep():
         outFileName = '{}/.config/autostart/pythonscript.desktop'.format(HOME_DIR)
         outFile=open(outFileName, "w")
         outFile.write("""
-        Desktop Entry]
-        Version=1.0
-        Name=Gondola
-        Comment=AiVision
-        Exec=/usr/bin/lxterminal -e {}/startscript.sh
-        Icon=preferences-desktop-remote-desktop
-        NoDisplay=false
-        StartupNotify=true
-        Type=Application
-        X-GNOME-Autostart-Phase=Application
-        X-GNOME-AutoRestart=true
-        X-GNOME-UsesNotification=true
+[Desktop Entry]
+Version=1.0
+Name=Gondola
+Comment=AiVision
+Exec=/usr/bin/lxterminal -e {}/startscript.sh
+Icon=preferences-desktop-remote-desktop
+NoDisplay=false
+StartupNotify=true
+Type=Application
+X-GNOME-Autostart-Phase=Application
+X-GNOME-AutoRestart=true
+X-GNOME-UsesNotification=true
         """.format(HOME_DIR))
         outFile.close()
         pass
