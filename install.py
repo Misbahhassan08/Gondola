@@ -1,4 +1,5 @@
 from pathlib import Path
+from os import path
 import os 
 import time 
 
@@ -13,7 +14,7 @@ def install_dep():
 
     # ----------------- auto start script -----------------------------------------------------------------
     script_file = '{}/startscript.sh'.format(HOME_DIR)
-    if (Path.exists(script_file) == False):
+    if (path.exists(script_file) == False):
         outFileName = '{}/startscript.sh'.format(HOME_DIR)
         outFile=open(outFileName, "w")
         outFile.write("""
@@ -26,7 +27,7 @@ def install_dep():
     
 
     outFileName = '{}/.config/autostart/pythonscript.desktop'.format(HOME_DIR)
-    if (Path.exists(outFileName) == False):
+    if (path.exists(outFileName) == False):
         outFileName = '{}/.config/autostart/pythonscript.desktop'.format(HOME_DIR)
         outFile=open(outFileName, "w")
         outFile.write("""
