@@ -9,7 +9,7 @@ def install_dep():
 
 
     os.system('sudo apt-get update')
-    os.system('sudo apt-get install git cmake libpython3-dev python3-numpy python3-pip nano python3-scipy python3-h5py python3-pil curl update upgrade  -y')
+    os.system('sudo apt-get install git cmake libpython3-dev python3-numpy python3-pip nano python3-scipy python3-h5py python3-pil curl -y')
     os.system('sudo pip3 install screeninfo')
 
     # ----------------- auto start script -----------------------------------------------------------------
