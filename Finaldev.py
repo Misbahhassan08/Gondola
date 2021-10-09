@@ -1,4 +1,5 @@
 import install
+
 try:
     import cv2
     import jetson.inference
@@ -6,6 +7,7 @@ try:
     import time
     import RPi.GPIO as GPIO
     from classAI import AI
+    from tagsClass import HW
     import requests
     import screeninfo
     import numpy as np
@@ -13,7 +15,7 @@ except Exception as error:
     print('Installing libs now ..')
     install.install_dep()
 
-import os 
+import os
 import getpass
 
 
@@ -33,16 +35,15 @@ class MainCode:
         GPIO.setup(self.input_pin1, GPIO.IN)
         GPIO.setup(self.input_pin2, GPIO.IN)
 
-
         self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-        self.ID = getpass.getuser() # machine ID should be the unique 
+        self.ID = getpass.getuser()  # machine ID should be the unique
 
-        self.bottle = AI(self.ROOT_DIR, cam_number=self.shelf, gender_cam=self.camera_gender, threshold = 0.01)
+        self.bottle = AI(self.ROOT_DIR, cam_number=self.shelf, gender_cam=self.camera_gender, threshold=0.01)
+
+        self.arduino = HW()
 
         self.url = "http://inovat-ioi.com/app_api/index.php/Admin/updateStockByShelf"
-
-        
 
     def update_shelf_to_cloud(self):
         for shelf_id in range(len(self.shelf)):
@@ -82,12 +83,19 @@ class MainCode:
         return [md, fd]
         pass
 
+    def run_tagsCalss(self):
+        self.arduino.start()
+        pass
+
+    def getTags(self):
+        return self.arduino.gettags()
+
 
 if __name__ == '__main__':
 
     screen_id = 0
     is_color = True
-
+    status = False
     # get the size of the screen
     screen = screeninfo.get_monitors()[screen_id]
     width, height = screen.width, screen.height
@@ -112,44 +120,45 @@ if __name__ == '__main__':
     cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,
                           cv2.WINDOW_FULLSCREEN)
 
-    mainobj = MainCode()
+    try:
+        mainobj = MainCode()
+        # check status of all cameras
+        status = mainobj.check_bottle_cameras()
+        if status:
+            print('All bottle Cameras Run Perfectly')
+            mainobj.run_bottles_class()
+    except Exception as Error:
+        print(Error)
 
-    manImage1 =  '{}/gender_files/Input_images/b1m.jpg'.format(mainobj.ROOT_DIR)
+    manImage1 = '{}/gender_files/Input_images/b1m.jpg'.format(mainobj.ROOT_DIR)
     womanImage1 = '{}/gender_files/Input_images/b1f.jpg'.format(mainobj.ROOT_DIR)
 
     manImage2 = '{}/gender_files/Input_images/b2m.jpg'.format(mainobj.ROOT_DIR)
     womanImage2 = '{}/gender_files/Input_images/b2f.jpg'.format(mainobj.ROOT_DIR)
 
     image = cv2.imread(manImage1)
-    
-
-    # check status of all cameras
-    status = mainobj.check_bottle_cameras()
-    if status:
-        print('All bottle Cameras Run Perfectly')
-        mainobj.run_bottles_class()
-
-    values = [0, 0]
+    values = [False, False]
     mf = [False, False]
     while status:
-        values = mainobj.scan_gpios()
+        values = mainobj.getTags()
         mf = mainobj.scan_gender_status()
-
         print(mf)
-        if mf[0] == True:
-            if values[0] == 1 and values[1] == 0:
+
+        if mf[0]:
+            if values[0]:
                 image = cv2.imread(manImage1)
-            elif values[0] == 0 and values[1] == 1:
+            elif values[1]:
                 image = cv2.imread(manImage2)
                 # image = cv2.resize(image,(width,height))
             else:
                 image = cv2.imread(manImage1)
             pass
-        elif mf[1] == True:
-            if values[0] == 1 and values[1] == 0:
+
+        elif mf[1]:
+            if values[0]:
                 image = cv2.imread(womanImage1)
                 # image = cv2.resize(image,(width,height))
-            elif values[0] == 0 and values[1] == 1:
+            elif values[1]:
                 image = cv2.imread(womanImage2)
                 # image = cv2.resize(image,(width,height))
             else:
@@ -160,5 +169,5 @@ if __name__ == '__main__':
         cv2.imshow(window_name, image)
         cv2.waitKey(1)
         mainobj.update_shelf_to_cloud()
-        #time.sleep(1)
+        # time.sleep(1)
         pass
