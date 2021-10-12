@@ -25,13 +25,27 @@ class HW(threading.Thread):
         self.TAG2_active = False
 
         self.port_fail = False
+        self.screen_Fails = False
 
         self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
         # get the size of the screen
-        screen_id = 0
-        screen = screeninfo.get_monitors()[screen_id]
-        self.width, self.height = screen.width, screen.height
+        try:
+            self.screen_id = 0
+            self.screen = screeninfo.get_monitors()[self.screen_id]
+            self.width, self.height = self.screen.width, self.screen.height
+        except Exception as error:
+            while True:
+                self.screen_Fails = True
+                self.screen_id = 0
+                self.screen = screeninfo.get_monitors()[self.screen_id]
+                self.width, self.height = self.screen.width, self.screen.height
+                if (self.width > 0) or (self.height > 0):
+                    self.screen_Fails = False
+                    break
+
+                pass
+            pass
 
         self.window_name = 'projector'
         cv2.namedWindow(self.window_name, cv2.WND_PROP_FULLSCREEN)
