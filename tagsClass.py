@@ -36,6 +36,7 @@ class HW(threading.Thread):
             self.width, self.height = self.screen.width, self.screen.height
         except Exception as error:
             while True:
+                print("********************************** CONNECTING SCREEEN ****************************************")
                 self.screen_Fails = True
                 self.screen_id = 0
                 self.screen = screeninfo.get_monitors()[self.screen_id]
