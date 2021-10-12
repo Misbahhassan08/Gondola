@@ -53,8 +53,6 @@ class HW(threading.Thread):
         try:
             self.ser = serial.Serial("/dev/ttyACM0", 115200)
         except Exception as error:
-            self.ser = serial.Serial("/dev/ttyACM01", 115200)
-        finally:
             self.port_fail = True
             pass
 
