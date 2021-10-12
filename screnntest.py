@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 import screeninfo
+import os
+
 
 if __name__ == '__main__':
     screen_id = 0
@@ -9,6 +11,8 @@ if __name__ == '__main__':
     # get the size of the screen
     screen = screeninfo.get_monitors()[screen_id]
     width, height = screen.width, screen.height
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+    manImage1 = '{}/gender_files/Input_images/b1m.jpg'.format(ROOT_DIR)
 
     # create image
     if is_color:
@@ -29,6 +33,7 @@ if __name__ == '__main__':
     cv2.moveWindow(window_name, screen.x - 1, screen.y - 1)
     cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,
                           cv2.WINDOW_FULLSCREEN)
+    image = cv2.imread(manImage1)
     cv2.imshow(window_name, image)
     cv2.waitKey()
     cv2.destroyAllWindows()

@@ -8,7 +8,7 @@ from PIL import Image
 
 
 class AI(threading.Thread):
-    def __init__(self, ROOT_PATH , cam_number, gender_cam, threshold):
+    def __init__(self, ROOT_PATH, cam_number, gender_cam, threshold):
         threading.Thread.__init__(self)
         self.th = threshold
         self.net = jetson.inference.detectNet("ssd-mobilenet-v2", 0.01)
@@ -31,7 +31,7 @@ class AI(threading.Thread):
                 "ID": self.camera_number[x],
                 "Name": "shelf_{}_camera".format(x),
                 "file": "shelf_{}_camera.jpg".format(x),
-                "file_AI":"shelf_{}_camera_AI.jpg".format(x),
+                "file_AI": "shelf_{}_camera_AI.jpg".format(x),
                 "total_bottles": 0,
                 "Status": False
             })
@@ -112,24 +112,65 @@ class AI(threading.Thread):
         return frameOpencvDnn, faceBoxes
 
     def run(self):
+        _count = 0
+        _timeLimit = 10
         while self.loop:
+            if _count >= _timeLimit:
+                # write all bottle images
+                for x in range(len(self.camera_number)):
+                    cap = cv2.VideoCapture(self.return_camera_test[x]["ID"])
+                    # time.sleep(0.1)
+                    ret, frame = cap.read()
+                    # img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    im_pil = Image.fromarray(frame)
 
-            # write all bottle images
-            for x in range(len(self.camera_number)):
-                cap = cv2.VideoCapture(self.return_camera_test[x]["ID"])
-                #time.sleep(0.1)
-                ret, frame = cap.read()
-                #img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                im_pil = Image.fromarray(frame)
+                    im_pil.save(self.return_camera_test[x]["file"], format='JPEG')
 
-                im_pil.save(self.return_camera_test[x]["file"], format='JPEG')
+                    cap.release()
+                    # time.sleep(0.3)
+                # read all images
+                for x in range(len(self.camera_number)):
+                    frame = cv2.imread(self.return_camera_test[x]["file"])
+                    frame = cv2.resize(frame, (1640, 1480))
+                    imgCuda = jetson.utils.cudaFromNumpy(frame)
+                    detections = self.net.Detect(imgCuda)
 
-                cap.release()
-                #time.sleep(0.3)
+                    i = 0
+                    for d in detections:
+                        x1, y1, x2, y2 = int(d.Left), int(d.Top), int(d.Right), int(d.Bottom)
+                        className = self.net.GetClassDesc(d.ClassID)
+                        if className == "bottle":
+                            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 2)
+                            cv2.putText(frame, className, (x1 + 5, y1 + 15), cv2.FONT_HERSHEY_DUPLEX, 0.75,
+                                        (255, 0, 255),
+                                        2)
+                            i = i + 1
+                    self.count[x] = self.count[x] + 1
+                    self.average[x] = self.average[x] + i
+
+                    img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    im_pil = Image.fromarray(img)
+
+                    im_pil.save(self.return_camera_test[x]["file_AI"], format='JPEG')
+
+                    if self.count[x] == 10:
+                        self.average[x] = self.average[x] / 10
+                        print(self.average[x])
+                        self.total_bottles[x] = int(self.average[x])  # / 10)
+                        self.count[x] = 0
+                    if self.total_bottles[x] > self.MAX[x]:
+                        self.total_bottles[x] = self.MAX[x]
+                    if self.total_bottles[x] < 0:
+                        self.total_bottles[x] = 0
+
+                    self.return_camera_test[x]["total_bottles"] = self.total_bottles[x]
+                print(self.return_camera_test)
+                _count = 0
+            _count = _count + 1
 
             # write gender image
             cap = cv2.VideoCapture(self.gender_cam)
-            #time.sleep(0.1)
+            # time.sleep(0.1)
             ret, frame = cap.read()
             frame = cv2.resize(frame, (640, 480))  # 420,180
             resultImg, faceBoxes = self.highlightFace(self.faceNet, frame, 0.4)
@@ -148,61 +189,20 @@ class AI(threading.Thread):
                 genderPreds = self.genderNet.forward()
                 gender = self.genderList[genderPreds[0].argmax()]
                 print(f'--------------------------Gender------------------- : {gender}')
-
+                file = open("gender.txt", mode="w", errors="strict")
+                print(file.writelines(gender))
+                file.close()
                 self.ageNet.setInput(blob)
                 agePreds = self.ageNet.forward()
                 age = self.ageList[agePreds[0].argmax()]
-                print(f'Age: {age[1:-1]} years')
+                #print(f'Age: {age[1:-1]} years')
 
-                if gender == 'Male':
-                    self.male_detected = True
-                    self.female_detected = False
-                    pass
-                elif gender == 'Female':
-                    self.female_detected = True
-                    self.male_detected = False
-                    pass
             img = cv2.cvtColor(resultImg, cv2.COLOR_BGR2RGB)
             im_pil = Image.fromarray(img)
 
             im_pil.save("FaceImage.jpg", format='JPEG')
 
             cap.release()
-            #time.sleep(0.3)
+            # time.sleep(0.3)
 
-            # read all images
-            for x in range(len(self.camera_number)):
-                frame = cv2.imread(self.return_camera_test[x]["file"])
-                frame = cv2.resize(frame,(1640,1480))
-                imgCuda = jetson.utils.cudaFromNumpy(frame)
-                detections = self.net.Detect(imgCuda)
 
-                i = 0
-                for d in detections:
-                    x1, y1, x2, y2 = int(d.Left), int(d.Top), int(d.Right), int(d.Bottom)
-                    className = self.net.GetClassDesc(d.ClassID)
-                    if className == "bottle":
-                        cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 2)
-                        cv2.putText(frame, className, (x1 + 5, y1 + 15), cv2.FONT_HERSHEY_DUPLEX, 0.75, (255, 0, 255),
-                                    2)
-                        i = i + 1
-                self.count[x] = self.count[x] + 1
-                self.average[x] = self.average[x] + i
-
-                img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                im_pil = Image.fromarray(img)
-
-                im_pil.save(self.return_camera_test[x]["file_AI"], format='JPEG')
-                
-                if self.count[x] == 10:
-                    self.average[x] = self.average[x] / 10
-                    print(self.average[x])
-                    self.total_bottles[x] = int(self.average[x])#/ 10)
-                    self.count[x] = 0
-                if self.total_bottles[x] > self.MAX[x]:
-                    self.total_bottles[x] = self.MAX[x]
-                if self.total_bottles[x] < 0:
-                    self.total_bottles[x] = 0
-
-                self.return_camera_test[x]["total_bottles"] = self.total_bottles[x]
-            print(self.return_camera_test)

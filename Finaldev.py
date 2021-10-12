@@ -1,3 +1,8 @@
+# print("Updating Hardware Please Wait... ")
+# while True:
+#	pass
+
+
 import install
 
 try:
@@ -9,8 +14,10 @@ try:
     from classAI import AI
     from tagsClass import HW
     import requests
-    import screeninfo
     import numpy as np
+    from threading import Thread
+    import json
+
 except Exception as error:
     print('Installing libs now ..')
     install.install_dep()
@@ -21,6 +28,7 @@ import getpass
 
 class MainCode:
     def __init__(self):
+
         self.input_pin1 = 21
         self.input_pin2 = 20
 
@@ -43,23 +51,41 @@ class MainCode:
 
         self.arduino = HW()
 
-        self.url = "http://inovat-ioi.com/app_api/index.php/Admin/updateStockByShelf"
+        self.url = "http://35.222.60.164"
+
+        self.thread = Thread(target=self.update_to_cloud, args=())
+        # self.thread.daemon=True
+        self.thread.start()
+
+    def update_to_cloud(self):
+        try:
+            stat = self.check_bottle_cameras()
+            if stat:
+                print('All bottle Cameras Run Perfectly')
+                self.run_tagsCalss()
+                self.run_bottles_class()
+
+        except Exception as error:
+            print("ERROR : ", error)
+            pass
+        while True:
+            print("**************************************************&&&&&&&&***********************")
+            self.update_shelf_to_cloud()
+            time.sleep(5)
+            pass
+        pass
 
     def update_shelf_to_cloud(self):
-        for shelf_id in range(len(self.shelf)):
-            x = shelf_id + 1
-            bt = self.bottle.get_cameras_status()
-            # print(bt)
-            payload = "{\r\n        \"shelf_id\":%d,\r\n        \"current_stock\": \"%s\"\r\n}" % (
-                x, str(bt[shelf_id]["total_bottles"]))
-            headers = {'Content-Type': 'text/plain'}
-            response = requests.request("POST", self.url, headers=headers, data=payload)
 
-            # print(response)
-            # print(payload)
-            # print('***************************************')
-            # print('\n')
-
+        bt = self.bottle.get_cameras_status()
+        endpoint = "{}/api/stand_status".format(self.url)
+        payload = {'Stand':self.ID,'Data':bt}
+        payload = json.dumps(payload)
+        print(payload)
+        print(endpoint)
+        headers = {'Content-Type': 'application/json'}
+        response = requests.request("POST", endpoint , headers=headers, data=payload)
+        print("------ RESPONSE ----------------------------->",response)
     def check_bottle_cameras(self):
         self.bottle.test_cameras_bottle()
         camera_status_bottles = self.bottle.get_cameras_status()
@@ -90,84 +116,12 @@ class MainCode:
     def getTags(self):
         return self.arduino.gettags()
 
+    def setGenderStatus(self, mf):
+        self.arduino.mf = mf
+
 
 if __name__ == '__main__':
-
-    screen_id = 0
-    is_color = True
     status = False
-    # get the size of the screen
-    screen = screeninfo.get_monitors()[screen_id]
-    width, height = screen.width, screen.height
+    mainobj = MainCode()
 
-    # create image
-    if is_color:
-        image = np.ones((height, width, 3), dtype=np.float32)
-        image[:10, :10] = 0  # black at top-left corner
-        image[height - 10:, :10] = [1, 0, 0]  # blue at bottom-left
-        image[:10, width - 10:] = [0, 1, 0]  # green at top-right
-        image[height - 10:, width - 10:] = [0, 0, 1]  # red at bottom-right
-    else:
-        image = np.ones((height, width), dtype=np.float32)
-        image[0, 0] = 0  # top-left corner
-        image[height - 2, 0] = 0  # bottom-left
-        image[0, width - 2] = 0  # top-right
-        image[height - 2, width - 2] = 0  # bottom-right
 
-    window_name = 'projector'
-    cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
-    cv2.moveWindow(window_name, screen.x - 1, screen.y - 1)
-    cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,
-                          cv2.WINDOW_FULLSCREEN)
-
-    try:
-        mainobj = MainCode()
-        # check status of all cameras
-        status = mainobj.check_bottle_cameras()
-        if status:
-            print('All bottle Cameras Run Perfectly')
-            mainobj.run_bottles_class()
-    except Exception as Error:
-        print(Error)
-
-    manImage1 = '{}/gender_files/Input_images/b1m.jpg'.format(mainobj.ROOT_DIR)
-    womanImage1 = '{}/gender_files/Input_images/b1f.jpg'.format(mainobj.ROOT_DIR)
-
-    manImage2 = '{}/gender_files/Input_images/b2m.jpg'.format(mainobj.ROOT_DIR)
-    womanImage2 = '{}/gender_files/Input_images/b2f.jpg'.format(mainobj.ROOT_DIR)
-
-    image = cv2.imread(manImage1)
-    values = [False, False]
-    mf = [False, False]
-    while status:
-        values = mainobj.getTags()
-        mf = mainobj.scan_gender_status()
-        print(mf)
-
-        if mf[0]:
-            if values[0]:
-                image = cv2.imread(manImage1)
-            elif values[1]:
-                image = cv2.imread(manImage2)
-                # image = cv2.resize(image,(width,height))
-            else:
-                image = cv2.imread(manImage1)
-            pass
-
-        elif mf[1]:
-            if values[0]:
-                image = cv2.imread(womanImage1)
-                # image = cv2.resize(image,(width,height))
-            elif values[1]:
-                image = cv2.imread(womanImage2)
-                # image = cv2.resize(image,(width,height))
-            else:
-                image = cv2.imread(womanImage1)
-            pass
-        else:
-            image = cv2.imread(manImage1)
-        cv2.imshow(window_name, image)
-        cv2.waitKey(1)
-        mainobj.update_shelf_to_cloud()
-        # time.sleep(1)
-        pass
