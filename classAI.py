@@ -3,7 +3,6 @@ import jetson.inference
 import jetson.utils
 import time
 import threading
-import io
 from PIL import Image
 
 
@@ -26,6 +25,8 @@ class AI(threading.Thread):
 
         self.total_bottles = [0, 0, 0, 0, 0]
         self.return_camera_test = []
+
+        # add totoal counts of male and female image
         for x in range(len(self.camera_number)):
             self.return_camera_test.append({
                 "ID": self.camera_number[x],
@@ -204,5 +205,4 @@ class AI(threading.Thread):
 
             cap.release()
             # time.sleep(0.3)
-
 

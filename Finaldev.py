@@ -1,18 +1,14 @@
 # print("Updating Hardware Please Wait... ")
 # while True:
 #	pass
-
-
 import install
 
 try:
     import cv2
-    import jetson.inference
-    import jetson.utils
     import time
-    import RPi.GPIO as GPIO
-    from classAI import AI
     from tagsClass import HW
+    from classAI import AI
+
     import requests
     import numpy as np
     from threading import Thread
@@ -29,19 +25,12 @@ import getpass
 class MainCode:
     def __init__(self):
 
-        self.input_pin1 = 21
-        self.input_pin2 = 20
-
         self.camera_gender = 0
         self.shelf = [1, 2, 3, 4, 5]
 
         self.gender_camera = False
         self.bottle_camera = False
         self.loop = True
-
-        GPIO.setmode(GPIO.BCM)  # BCM pin-numbering scheme from Raspberry Pi
-        GPIO.setup(self.input_pin1, GPIO.IN)
-        GPIO.setup(self.input_pin2, GPIO.IN)
 
         self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -54,7 +43,6 @@ class MainCode:
         self.url = "http://35.222.60.164"
 
         self.thread = Thread(target=self.update_to_cloud, args=())
-        # self.thread.daemon=True
         self.thread.start()
 
     def update_to_cloud(self):
@@ -79,13 +67,14 @@ class MainCode:
 
         bt = self.bottle.get_cameras_status()
         endpoint = "{}/api/stand_status".format(self.url)
-        payload = {'Stand':self.ID,'Data':bt}
+        payload = {'Stand': self.ID, 'Data': bt}
         payload = json.dumps(payload)
         print(payload)
         print(endpoint)
         headers = {'Content-Type': 'application/json'}
-        response = requests.request("POST", endpoint , headers=headers, data=payload)
-        print("------ RESPONSE ----------------------------->",response)
+        response = requests.request("POST", endpoint, headers=headers, data=payload)
+        print("------ RESPONSE ----------------------------->", response)
+
     def check_bottle_cameras(self):
         self.bottle.test_cameras_bottle()
         camera_status_bottles = self.bottle.get_cameras_status()
@@ -98,30 +87,12 @@ class MainCode:
         self.bottle.start()
         pass
 
-    def scan_gpios(self):
-        value1 = GPIO.input(self.input_pin1)
-        value2 = GPIO.input(self.input_pin2)
-        return [value1, value2]
-
-    def scan_gender_status(self):
-        md = self.bottle.male_detected
-        fd = self.bottle.female_detected
-        return [md, fd]
-        pass
-
     def run_tagsCalss(self):
         self.arduino.start()
         pass
-
-    def getTags(self):
-        return self.arduino.gettags()
-
-    def setGenderStatus(self, mf):
-        self.arduino.mf = mf
 
 
 if __name__ == '__main__':
     status = False
     mainobj = MainCode()
-
 

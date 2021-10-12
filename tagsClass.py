@@ -12,23 +12,24 @@ import io
 class HW(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.TAG1 = "1482015"  # Please enter Tags here TAG1
-        self.TAG2 = "0141915"  # Enter Tag2
+        self.TAG1 = "1117820"  # Please enter Tags here TAG1
+        self.TAG2 = "247720"  # Enter Tag2
         self.bcolor = "B"
         self.gcolor = "G"
         self.wcolor = "W"
 
         self.match_tag_1 = [self.TAG1, self.gcolor]
         self.match_tag_2 = [self.TAG2, self.bcolor]
-        self.ser = serial.Serial("/dev/ttyACM0", 115200)
+
         self.TAG1_active = True
         self.TAG2_active = False
+
+        self.port_fail = False
 
         self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
         # get the size of the screen
         screen_id = 0
-        is_color = True
         screen = screeninfo.get_monitors()[screen_id]
         self.width, self.height = screen.width, screen.height
 
@@ -44,16 +45,22 @@ class HW(threading.Thread):
         self.manImage2 = '{}/gender_files/Input_images/b2m.jpg'.format(self.ROOT_DIR)
         self.womanImage2 = '{}/gender_files/Input_images/b2f.jpg'.format(self.ROOT_DIR)
 
-        # self.image = np.ones((self.height, self.width), dtype=np.float32)
-        # self.image[0, 0] = 0  # top-left corner
-        # self.image[self.height - 2, 0] = 0  # bottom-left
-        # self.image[0, self.width - 2] = 0  # top-right
-        # self.image[self.height - 2, self.width - 2] = 0  # bottom-right
-
         self.image = cv2.imread(self.manImage1)
 
         self.mf = [True, False]
         self.values = [True, False]
+
+        try:
+            self.ser = serial.Serial("/dev/ttyACM0", 115200)
+        except Exception as error:
+            self.ser = serial.Serial("/dev/ttyACM01", 115200)
+        finally:
+            self.port_fail = True
+            pass
+
+        for i in range(10):
+            cv2.imshow(self.window_name, self.image)
+            cv2.waitKey(1)
 
     def gettags(self):
         return [self.TAG1_active, self.TAG2_active]
@@ -92,29 +99,30 @@ class HW(threading.Thread):
             for i in range(10):
                 cv2.imshow(self.window_name, self.image)
                 cv2.waitKey(1)
-            if self.ser.in_waiting > 0:
-                rx_data = self.ser.readline().decode("utf-8").strip()
-                if len(rx_data) > 0:
+            if not self.port_fail:
+                if self.ser.in_waiting > 0:
+                    rx_data = self.ser.readline().decode("utf-8").strip()
+                    if len(rx_data) > 0:
 
-                    if rx_data == self.match_tag_1[0]:
-                        print("tag1 received")
+                        if rx_data == self.match_tag_1[0]:
+                            print("tag1 received")
 
-                        cmd = '%s' % self.match_tag_1[1]
-                        cmd = cmd.encode('utf-8')
+                            cmd = '%s' % self.match_tag_1[1]
+                            cmd = cmd.encode('utf-8')
 
-                        self.ser.write(cmd)
-                        self.TAG1_active = True
-                        self.TAG2_active = False
+                            self.ser.write(cmd)
+                            self.TAG1_active = True
+                            self.TAG2_active = False
 
-                    elif rx_data == self.match_tag_2[0]:
-                        print("tag2 received")
-                        cmd = '%s' % self.match_tag_2[1]
-                        cmd = cmd.encode('utf-8')
+                        elif rx_data == self.match_tag_2[0]:
+                            print("tag2 received")
+                            cmd = '%s' % self.match_tag_2[1]
+                            cmd = cmd.encode('utf-8')
 
-                        self.ser.write(cmd)
-                        self.TAG1_active = False
-                        self.TAG2_active = True
-                    pass
+                            self.ser.write(cmd)
+                            self.TAG1_active = False
+                            self.TAG2_active = True
+                        pass
 
     pass
 
@@ -122,4 +130,3 @@ class HW(threading.Thread):
 if __name__ == '__main__':
     arduino = HW()
     arduino.start()
-
