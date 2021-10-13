@@ -9,6 +9,8 @@ curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.
 arduino-cli
 sudo nano ~/.bashrc
 
+----- Manual Input to file ------------------
+
 export PATH=$PATH:/home/gondola/bin
 sudo reboot
 arduino-cli config init
