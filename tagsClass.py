@@ -39,18 +39,22 @@ class HW(threading.Thread):
                 print("********************************** CONNECTING SCREEEN ****************************************")
                 self.screen_Fails = True
                 self.screen_id = 0
-                self.screen = screeninfo.get_monitors()[self.screen_id]
-                self.width, self.height = self.screen.width, self.screen.height
-                if (self.width > 0) or (self.height > 0):
-                    self.screen_Fails = False
-                    break
+                try:
+
+                    self.screen = screeninfo.get_monitors()[self.screen_id]
+                    self.width, self.height = self.screen.width, self.screen.height
+                    if (self.width > 0) or (self.height > 0):
+                        self.screen_Fails = False
+                        break
+                except:
+                    pass
 
                 pass
             pass
 
         self.window_name = 'projector'
         cv2.namedWindow(self.window_name, cv2.WND_PROP_FULLSCREEN)
-        cv2.moveWindow(self.window_name, screen.x - 1, screen.y - 1)
+        cv2.moveWindow(self.window_name, self.screen.x - 1, self.screen.y - 1)
         cv2.setWindowProperty(self.window_name, cv2.WND_PROP_FULLSCREEN,
                               cv2.WINDOW_FULLSCREEN)
 
@@ -61,6 +65,9 @@ class HW(threading.Thread):
         self.womanImage2 = '{}/gender_files/Input_images/b2f.jpg'.format(self.ROOT_DIR)
 
         self.image = cv2.imread(self.manImage1)
+        for i in range(10):
+            cv2.imshow(self.window_name, self.image)
+            cv2.waitKey(1)
 
         self.mf = [True, False]
         self.values = [True, False]
@@ -73,9 +80,7 @@ class HW(threading.Thread):
             self.port_fail = True
             pass
 
-        for i in range(10):
-            cv2.imshow(self.window_name, self.image)
-            cv2.waitKey(1)
+
 
     def gettags(self):
         return [self.TAG1_active, self.TAG2_active]
