@@ -64,16 +64,18 @@ class MainCode:
         pass
 
     def update_shelf_to_cloud(self):
-
-        bt = self.bottle.get_cameras_status()
-        endpoint = "{}/api/stand_status".format(self.url)
-        payload = {'Stand': self.ID, 'Data': bt}
-        payload = json.dumps(payload)
-        print(payload)
-        print(endpoint)
-        headers = {'Content-Type': 'application/json'}
-        response = requests.request("POST", endpoint, headers=headers, data=payload)
-        print("------ RESPONSE ----------------------------->", response)
+        try:
+            bt = self.bottle.get_cameras_status()
+            endpoint = "{}/api/stand_status".format(self.url)
+            payload = {'Stand': self.ID, 'Data': bt}
+            payload = json.dumps(payload)
+            print(payload)
+            print(endpoint)
+            headers = {'Content-Type': 'application/json'}
+            response = requests.request("POST", endpoint, headers=headers, data=payload)
+            print("------ RESPONSE ----------------------------->", response)
+        except Exception as error:
+            pass
 
     def check_bottle_cameras(self):
         self.bottle.test_cameras_bottle()
