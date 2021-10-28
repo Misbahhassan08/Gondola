@@ -4,6 +4,8 @@ import jetson.utils
 import time
 import threading
 from PIL import Image
+import pyautogui
+import numpy as np
 
 
 class AI(threading.Thread):
@@ -53,6 +55,8 @@ class AI(threading.Thread):
         ageModel = '{}/gender_files/models/age_net.caffemodel'.format(self.ROOT_PATH)
         genderProto = '{}/gender_files/models/gender_deploy.prototxt'.format(self.ROOT_PATH)
         genderModel = '{}/gender_files/models/gender_net.caffemodel'.format(self.ROOT_PATH)
+
+        self.screenshoot = '{}/screen.jpg'.format(self.ROOT_PATH)
 
         self.MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
         self.ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
@@ -168,6 +172,12 @@ class AI(threading.Thread):
                 print(self.return_camera_test)
                 _count = 0
             _count = _count + 1
+
+            # take screenshot
+            img = pyautogui.screenshot()
+            frame = np.array(img)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            cv2.imwrite(self.screenshoot, frame)
 
             # write gender image
             cap = cv2.VideoCapture(self.gender_cam)

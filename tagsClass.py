@@ -78,10 +78,12 @@ class HW(threading.Thread):
             self.port_fail = True
             pass
 
-
-
     def gettags(self):
         return [self.TAG1_active, self.TAG2_active]
+
+    def getfails(self):
+        return {'port': self.port_fail, 'screen': self.screen_Fails}
+        pass
 
     def run(self):
 

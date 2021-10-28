@@ -70,6 +70,7 @@ X-GNOME-UsesNotification=true
     os.system('sudo apt-get install libtiff5 -y')
     os.system('sudo pip3 install pillow')
     os.system('sudo pip3 install pyserial')
+    os.system('sudo pip3 install pyautogui')
 
     print('All done Rebooting in 5 seconds')
     key = input('Press any key to done')

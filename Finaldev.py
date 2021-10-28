@@ -42,10 +42,13 @@ class MainCode:
 
         self.url = "http://35.222.60.164"
 
+        self.screenshoot = '{}/screen.jpg'.format(self.ROOT_DIR)
+
         self.thread = Thread(target=self.update_to_cloud, args=())
         self.thread.start()
 
     def update_to_cloud(self):
+
         try:
             stat = self.check_bottle_cameras()
             if stat:
@@ -64,10 +67,42 @@ class MainCode:
         pass
 
     def update_shelf_to_cloud(self):
+        #scan new configs
+        try:
+            _endpoint_config = "{}/api/checkconfig".format(self.url)
+            payload = {'Check_Config': True}
+            payload = json.dumps(payload)
+            print(payload)
+            print(_endpoint_config)
+            headers = {'Content-Type': 'application/json'}
+            response = requests.request("POST", _endpoint_config, headers=headers, data=payload)
+            print("------ RESPONSE ----------------------------->", response)
+
+            # if reponse is true then check updated updations , color configs, card configs
+
+
+        except Exception as error:
+            pass
+
+        # update screenshot
+        try:
+            _id = self.ID
+            _endpoint = "{}/api/screenshoots".format(self.url)
+            files = {
+                'media': open(self.screenshoot, 'rb'),
+                'payload': _id
+            }
+            r = requests.post(_endpoint, files=files)
+            print(r)
+        except Exception as error:
+            pass
+
+        # update logs
         try:
             bt = self.bottle.get_cameras_status()
+            log = {'Data':bt, 'Hardware': self. arduino.getfails()}
             endpoint = "{}/api/stand_status".format(self.url)
-            payload = {'Stand': self.ID, 'Data': bt}
+            payload = {'Stand': self.ID, 'Logs': log}
             payload = json.dumps(payload)
             print(payload)
             print(endpoint)
