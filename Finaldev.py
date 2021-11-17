@@ -13,6 +13,8 @@ try:
     import numpy as np
     from threading import Thread
     import json
+    import pyautogui
+    from PIL import Image
 
 except Exception as error:
     print('Installing libs now ..')
@@ -40,15 +42,27 @@ class MainCode:
 
         self.arduino = HW()
 
-        self.url = "http://35.222.60.164"
+        self.url = 'https://thwack.34.107.149.108.nip.io'#"http://34.68.28.163"
 
         self.screenshoot = '{}/screen.jpg'.format(self.ROOT_DIR)
 
         self.thread = Thread(target=self.update_to_cloud, args=())
         self.thread.start()
 
-    def update_to_cloud(self):
+    def takeScreenCapture(self):
+        try:
+            # take screenshot
+            img = pyautogui.screenshot()
+            frame = np.array(img)
+            im_pil = Image.fromarray(frame)
 
+            im_pil.save('screenCapture.jpg', format='JPEG')
+        except Exception as error:
+            print(error)
+        pass
+
+    def update_to_cloud(self):
+        
         try:
             stat = self.check_bottle_cameras()
             if stat:
@@ -60,6 +74,7 @@ class MainCode:
             print("ERROR : ", error)
             pass
         while True:
+            self.takeScreenCapture()
             print("**************************************************&&&&&&&&***********************")
             self.update_shelf_to_cloud()
             time.sleep(5)
@@ -67,6 +82,18 @@ class MainCode:
         pass
 
     def update_shelf_to_cloud(self):
+        try:
+            #get_gender_dect
+            _endpoint_gender= "{}/api/count_gender".format(self.url)
+            g = self.bottle.get_gender_dect()
+            payload = {'gender': g, "StandID":self.ID}
+            payload = json.dumps(payload)
+            headers = {'Content-Type': 'application/json'}
+            response = requests.request("POST", _endpoint_gender, headers=headers, data=payload)
+            print("------ RESPONSE ----------------------------->", response)
+            pass
+        except Exception as error:
+            pass
         #scan new configs
         try:
             _endpoint_config = "{}/api/checkconfig".format(self.url)
@@ -89,12 +116,13 @@ class MainCode:
             _id = self.ID
             _endpoint = "{}/api/screenshoots".format(self.url)
             files = {
-                'media': open(self.screenshoot, 'rb'),
-                'payload': _id
+                'media': open('screenCapture.jpg', 'rb')
             }
-            r = requests.post(_endpoint, files=files)
+            data = {'ID': _id}
+            r = requests.post(_endpoint, files=files, data=data)
             print(r)
         except Exception as error:
+            print(error)
             pass
 
         # update logs
@@ -110,7 +138,7 @@ class MainCode:
             response = requests.request("POST", endpoint, headers=headers, data=payload)
             print("------ RESPONSE ----------------------------->", response)
         except Exception as error:
-            pass
+            print(error) # pass
 
     def check_bottle_cameras(self):
         self.bottle.test_cameras_bottle()

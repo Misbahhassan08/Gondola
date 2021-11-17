@@ -4,7 +4,7 @@ import jetson.utils
 import time
 import threading
 from PIL import Image
-import pyautogui
+
 import numpy as np
 
 
@@ -27,6 +27,9 @@ class AI(threading.Thread):
 
         self.total_bottles = [0, 0, 0, 0, 0]
         self.return_camera_test = []
+
+        self.male_detected = False
+        self.female_detected = False
 
         # add totoal counts of male and female image
         for x in range(len(self.camera_number)):
@@ -95,6 +98,10 @@ class AI(threading.Thread):
 
     def get_cameras_status(self):
         return self.return_camera_test
+
+    def get_gender_dect(self):
+        return [self.male_detected, self.female_detected]
+        pass
 
     def highlightFace(self, net, frame, conf_threshold):
         frameOpencvDnn = frame.copy()
@@ -173,12 +180,6 @@ class AI(threading.Thread):
                 _count = 0
             _count = _count + 1
 
-            # take screenshot
-            img = pyautogui.screenshot()
-            frame = np.array(img)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            cv2.imwrite(self.screenshoot, frame)
-
             # write gender image
             cap = cv2.VideoCapture(self.gender_cam)
             # time.sleep(0.1)
@@ -203,6 +204,17 @@ class AI(threading.Thread):
                 file = open("gender.txt", mode="w", errors="strict")
                 print(file.writelines(gender))
                 file.close()
+                if gender == "Male":
+                    self.male_detected = True
+                    self.female_detected = False
+                    pass
+                elif gender == "Female":
+                    self.male_detected = False
+                    self.female_detected = True
+                    pass
+                else:
+                    self.male_detected = False
+                    self.female_detected = False
                 self.ageNet.setInput(blob)
                 agePreds = self.ageNet.forward()
                 age = self.ageList[agePreds[0].argmax()]

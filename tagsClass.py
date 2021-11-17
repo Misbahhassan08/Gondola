@@ -82,7 +82,8 @@ class HW(threading.Thread):
         return [self.TAG1_active, self.TAG2_active]
 
     def getfails(self):
-        return {'port': self.port_fail, 'screen': self.screen_Fails}
+        v = ~self.screen_Fails
+        return {'port': self.port_fail, 'screen': v}
         pass
 
     def run(self):
