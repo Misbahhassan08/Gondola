@@ -4,8 +4,9 @@ import jetson.utils
 import time
 import threading
 from PIL import Image
-
 import numpy as np
+from centroidtracker import CentroidTracker
+import imutils
 
 
 class AI(threading.Thread):
@@ -30,8 +31,25 @@ class AI(threading.Thread):
 
         self.male_detected = False
         self.female_detected = False
+        self.gender = None
+        self.bol_gender = False
 
-        # add totoal counts of male and female image
+        self.faceImage = "FaceTrack.jpg"
+        self.tempid = 0
+        self.newid = False
+        self.obid = 0
+        self.send_count = 0
+
+        protopath = "{}/MobileNetSSD_deploy.prototxt".format(self.ROOT_PATH)
+        modelpath = "{}/MobileNetSSD_deploy.caffemodel".format(self.ROOT_PATH)
+        self.detector = cv2.dnn.readNetFromCaffe(prototxt=protopath, caffeModel=modelpath)
+        self.CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
+                   "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
+                   "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
+                   "sofa", "train", "tvmonitor"]
+
+        self.tracker = CentroidTracker(maxDisappeared=80, maxDistance=90)
+
         for x in range(len(self.camera_number)):
             self.return_camera_test.append({
                 "ID": self.camera_number[x],
@@ -61,15 +79,54 @@ class AI(threading.Thread):
 
         self.screenshoot = '{}/screen.jpg'.format(self.ROOT_PATH)
 
-        self.MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
+        self.MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 144.895847746) # (78.4263377603, 87.7689143744, 114.895847746)
         self.ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
         self.genderList = ['Male', 'Female']
 
         self.faceNet = cv2.dnn.readNet(faceModel, faceProto)
         self.ageNet = cv2.dnn.readNet(ageModel, ageProto)
         self.genderNet = cv2.dnn.readNet(genderModel, genderProto)
-
         self.padding = 20
+
+    def non_max_suppression_fast(self, boxes, overlapThresh):
+        try:
+            if len(boxes) == 0:
+                return []
+
+            if boxes.dtype.kind == "i":
+                boxes = boxes.astype("float")
+
+            pick = []
+
+            x1 = boxes[:, 0]
+            y1 = boxes[:, 1]
+            x2 = boxes[:, 2]
+            y2 = boxes[:, 3]
+
+            area = (x2 - x1 + 1) * (y2 - y1 + 1)
+            idxs = np.argsort(y2)
+
+            while len(idxs) > 0:
+                last = len(idxs) - 1
+                i = idxs[last]
+                pick.append(i)
+
+                xx1 = np.maximum(x1[i], x1[idxs[:last]])
+                yy1 = np.maximum(y1[i], y1[idxs[:last]])
+                xx2 = np.minimum(x2[i], x2[idxs[:last]])
+                yy2 = np.minimum(y2[i], y2[idxs[:last]])
+
+                w = np.maximum(0, xx2 - xx1 + 1)
+                h = np.maximum(0, yy2 - yy1 + 1)
+
+                overlap = (w * h) / area[idxs[:last]]
+
+                idxs = np.delete(idxs, np.concatenate(([last],
+                                                       np.where(overlap > overlapThresh)[0])))
+
+            return boxes[pick].astype("int")
+        except Exception as e:
+            print("Exception occurred in non_max_suppression : {}".format(e))
 
     def test_camera_gender(self):
         cap = cv2.VideoCapture(self.gender_cam)
@@ -100,7 +157,12 @@ class AI(threading.Thread):
         return self.return_camera_test
 
     def get_gender_dect(self):
-        return [self.male_detected, self.female_detected]
+        if self.send_count <= self.obid:
+            self.send_count = self.send_count + 1
+            return[True, False]
+        else:
+            return [False, False]
+        # return [self.male_detected, self.female_detected]
         pass
 
     def highlightFace(self, net, frame, conf_threshold):
@@ -123,6 +185,11 @@ class AI(threading.Thread):
                 cv2.rectangle(frameOpencvDnn, (x1, y1), (x2, y2), (0, 255, 0), int(round(frameHeight / 150)), 8)
         return frameOpencvDnn, faceBoxes
 
+    def reset_gender(self):
+        self.male_detected = False
+        self.female_detected = False
+        self.newid = False
+
     def run(self):
         _count = 0
         _timeLimit = 10
@@ -143,7 +210,7 @@ class AI(threading.Thread):
                 # read all images
                 for x in range(len(self.camera_number)):
                     frame = cv2.imread(self.return_camera_test[x]["file"])
-                    frame = cv2.resize(frame, (1640, 1480))
+                    frame = cv2.resize(frame, (640, 480))
                     imgCuda = jetson.utils.cudaFromNumpy(frame)
                     detections = self.net.Detect(imgCuda)
 
@@ -160,14 +227,14 @@ class AI(threading.Thread):
                     self.count[x] = self.count[x] + 1
                     self.average[x] = self.average[x] + i
 
-                    img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    im_pil = Image.fromarray(img)
+                    # img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    im_pil = Image.fromarray(frame)
 
                     im_pil.save(self.return_camera_test[x]["file_AI"], format='JPEG')
 
                     if self.count[x] == 10:
                         self.average[x] = self.average[x] / 10
-                        print(self.average[x])
+                        #print(self.average[x])
                         self.total_bottles[x] = int(self.average[x])  # / 10)
                         self.count[x] = 0
                     if self.total_bottles[x] > self.MAX[x]:
@@ -176,55 +243,119 @@ class AI(threading.Thread):
                         self.total_bottles[x] = 0
 
                     self.return_camera_test[x]["total_bottles"] = self.total_bottles[x]
-                print(self.return_camera_test)
+                #print(self.return_camera_test)
                 _count = 0
             _count = _count + 1
 
             # write gender image
             cap = cv2.VideoCapture(self.gender_cam)
-            # time.sleep(0.1)
             ret, frame = cap.read()
-            frame = cv2.resize(frame, (640, 480))  # 420,180
-            resultImg, faceBoxes = self.highlightFace(self.faceNet, frame, 0.4)
+            frame_detection = frame
+            frame_detection = imutils.resize(frame_detection, width=600)
 
-            if not faceBoxes:
-                print("No face detected")
+            (H, W) = frame_detection.shape[:2]
+            blob_d = cv2.dnn.blobFromImage(frame_detection, 0.007843, (W, H), 127.5)
+            self.detector.setInput(blob_d)
+            person_detections = self.detector.forward()
+            rects = []
+            for i in np.arange(0, person_detections.shape[2]):
+                confidence = person_detections[0, 0, i, 2]
+                if confidence > 0.5:
+                    idx = int(person_detections[0, 0, i, 1])
 
-            for faceBox in faceBoxes:
-                face = frame[max(0, faceBox[1] - self.padding):
-                             min(faceBox[3] + self.padding, frame.shape[0] - 1), max(0, faceBox[0] - self.padding)
-                                                                                 :min(faceBox[2] + self.padding,
-                                                                                      frame.shape[1] - 1)]
+                    if self.CLASSES[idx] != "person":
+                        continue
 
-                blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), self.MODEL_MEAN_VALUES, swapRB=False)
-                self.genderNet.setInput(blob)
-                genderPreds = self.genderNet.forward()
-                gender = self.genderList[genderPreds[0].argmax()]
-                print(f'--------------------------Gender------------------- : {gender}')
-                file = open("gender.txt", mode="w", errors="strict")
-                print(file.writelines(gender))
-                file.close()
-                if gender == "Male":
-                    self.male_detected = True
-                    self.female_detected = False
-                    pass
-                elif gender == "Female":
-                    self.male_detected = False
-                    self.female_detected = True
-                    pass
-                else:
-                    self.male_detected = False
-                    self.female_detected = False
-                self.ageNet.setInput(blob)
-                agePreds = self.ageNet.forward()
-                age = self.ageList[agePreds[0].argmax()]
-                #print(f'Age: {age[1:-1]} years')
+                    person_box = person_detections[0, 0, i, 3:7] * np.array([W, H, W, H])
+                    (startX, startY, endX, endY) = person_box.astype("int")
+                    rects.append(person_box)
 
-            img = cv2.cvtColor(resultImg, cv2.COLOR_BGR2RGB)
-            im_pil = Image.fromarray(img)
+            boundingboxes = np.array(rects)
+            boundingboxes = boundingboxes.astype(int)
+            rects = self.non_max_suppression_fast(boundingboxes, 0.3)
 
-            im_pil.save("FaceImage.jpg", format='JPEG')
+            objects = self.tracker.update(rects)
+            for (objectId, bbox) in objects.items():
+                x1, y1, x2, y2 = bbox
+                x1 = int(x1)
+                y1 = int(y1)
+                x2 = int(x2)
+                y2 = int(y2)
+
+                cv2.rectangle(frame_detection, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                text = "ID: {}".format(objectId)
+                cv2.putText(frame_detection, text, (x1, y1 - 5), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255), 1)
+                self.obid= objectId
+                print("---------------------------- > ID : ",objectId)
+                #self.newid = True
+            if self.tempid >= self.obid:
+                pass
+            else:
+                self.tempid = self.obid
+                self.newid = True
+            try:
+                frame = cv2.resize(frame, (640, 480))  # 420,180
+                resultImg, faceBoxes = self.highlightFace(self.faceNet, frame, 0.4)
+                self.gender = "None"
+                if not faceBoxes:
+                    #print("No face detected")
+                    self.gender = "None"
+
+                for faceBox in faceBoxes:
+                    face = frame[max(0, faceBox[1] - self.padding):
+                                 min(faceBox[3] + self.padding, frame.shape[0] - 1),
+                           max(0, faceBox[0] - self.padding)
+                           :min(faceBox[2] + self.padding,
+                                frame.shape[1] - 1)]
+
+                    blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), self.MODEL_MEAN_VALUES, swapRB=False)
+                    self.genderNet.setInput(blob)
+                    genderPreds = self.genderNet.forward()
+                    self.gender = self.genderList[genderPreds[0].argmax()]
+                    print(f'--------------------------Gender------------------- : {self.gender}')
+                    file = open("gender.txt", mode="w", errors="strict")
+                    file.writelines(self.gender)
+                    file.close()
+                    if self.gender == "Male":
+                        self.male_detected = True
+                        self.female_detected = False
+                        pass
+                    elif self.gender == "Female":
+                        self.male_detected = False
+                        self.female_detected = True
+                        pass
+
+                    self.bol_gender = False
+                    #print("--------- face detected", face)
+                    blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), self.MODEL_MEAN_VALUES, swapRB=False)
+                    self.genderNet.setInput(blob)
+                    genderPreds = self.genderNet.forward()
+                    self.gender = self.genderList[genderPreds[0].argmax()]
+                    print(f'--------------------------Gender------------------- : {self.gender}')
+                    file = open("gender.txt", mode="w", errors="strict")
+                    file.writelines(self.gender)
+                    file.close()
+                    if self.gender == "Male":
+                        self.male_detected = True
+                        self.female_detected = False
+                        pass
+                    elif self.gender == "Female":
+                        self.male_detected = False
+                        self.female_detected = True
+                        pass
+                    self.ageNet.setInput(blob)
+                    agePreds = self.ageNet.forward()
+                    age = self.ageList[agePreds[0].argmax()]
+                    self.bol_gender = True
+                    # print(f'Age: {age[1:-1]} years')
+                im_pil = Image.fromarray(frame_detection)
+                im_pil.save(self.faceImage, format='JPEG')
+
+            except Exception as error:
+                print("Error in face detection : ",error)
+                pass
+
+
 
             cap.release()
             # time.sleep(0.3)
-

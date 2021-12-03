@@ -2,6 +2,11 @@ from pathlib import Path
 from os import path
 import os 
 import time 
+def update_git():
+    HOME_DIR = Path.home()
+    os.system('cd {}/ && git sudo reset --hard'.format(HOME_DIR))
+    os.system('cd {}/ && git sudo clean -df'.format(HOME_DIR))
+    os.system('cd {}/ && git sudo pull -f'.format(HOME_DIR))
 
 def install_dep():
     HOME_DIR = Path.home()

@@ -27,8 +27,8 @@ import getpass
 class MainCode:
     def __init__(self):
 
-        self.camera_gender = 0
-        self.shelf = [1, 2, 3, 4, 5]
+        self.camera_gender = 5
+        self.shelf = [1, 2, 3, 4, 0]
 
         self.gender_camera = False
         self.bottle_camera = False
@@ -42,7 +42,7 @@ class MainCode:
 
         self.arduino = HW()
 
-        self.url = 'https://thwack.34.107.149.108.nip.io'#"http://34.68.28.163"
+        self.url = 'https://thwack.34.107.149.108.nip.io'  # "http://34.68.28.163"
 
         self.screenshoot = '{}/screen.jpg'.format(self.ROOT_DIR)
 
@@ -62,7 +62,7 @@ class MainCode:
         pass
 
     def update_to_cloud(self):
-        
+
         try:
             stat = self.check_bottle_cameras()
             if stat:
@@ -83,27 +83,28 @@ class MainCode:
 
     def update_shelf_to_cloud(self):
         try:
-            #get_gender_dect
-            _endpoint_gender= "{}/api/count_gender".format(self.url)
+            # get_gender_dect
+            _endpoint_gender = "{}/api/count_gender".format(self.url)
             g = self.bottle.get_gender_dect()
-            payload = {'gender': g, "StandID":self.ID}
+            payload = {'gender': g, "StandID": self.ID}
             payload = json.dumps(payload)
             headers = {'Content-Type': 'application/json'}
             response = requests.request("POST", _endpoint_gender, headers=headers, data=payload)
-            print("------ RESPONSE ----------------------------->", response)
+            # print("------ RESPONSE ----------------------------->", response)
+            self.bottle.reset_gender()
             pass
         except Exception as error:
             pass
-        #scan new configs
+        # scan new configs
         try:
             _endpoint_config = "{}/api/checkconfig".format(self.url)
             payload = {'Check_Config': True}
             payload = json.dumps(payload)
-            print(payload)
-            print(_endpoint_config)
+            #print(payload)
+            #print(_endpoint_config)
             headers = {'Content-Type': 'application/json'}
             response = requests.request("POST", _endpoint_config, headers=headers, data=payload)
-            print("------ RESPONSE ----------------------------->", response)
+            #print("------ RESPONSE ----------------------------->", response)
 
             # if reponse is true then check updated updations , color configs, card configs
 
@@ -120,7 +121,7 @@ class MainCode:
             }
             data = {'ID': _id}
             r = requests.post(_endpoint, files=files, data=data)
-            print(r)
+            # print(r)
         except Exception as error:
             print(error)
             pass
@@ -128,22 +129,22 @@ class MainCode:
         # update logs
         try:
             bt = self.bottle.get_cameras_status()
-            log = {'Data':bt, 'Hardware': self. arduino.getfails()}
+            log = {'Data': bt, 'Hardware': self.arduino.getfails()}
             endpoint = "{}/api/stand_status".format(self.url)
             payload = {'Stand': self.ID, 'Logs': log}
             payload = json.dumps(payload)
-            print(payload)
-            print(endpoint)
+            # print(payload)
+            # print(endpoint)
             headers = {'Content-Type': 'application/json'}
             response = requests.request("POST", endpoint, headers=headers, data=payload)
-            print("------ RESPONSE ----------------------------->", response)
+            # print("------ RESPONSE ----------------------------->", response)
         except Exception as error:
-            print(error) # pass
+            print(error)  # pass
 
     def check_bottle_cameras(self):
         self.bottle.test_cameras_bottle()
         camera_status_bottles = self.bottle.get_cameras_status()
-        print(camera_status_bottles)
+        # print(camera_status_bottles)
         if camera_status_bottles[len(self.shelf) - 1]["Status"]:
             return True
             pass
