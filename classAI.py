@@ -5,8 +5,8 @@ import time
 import threading
 from PIL import Image
 import numpy as np
-from centroidtracker import CentroidTracker
-import imutils
+#from centroidtracker import CentroidTracker
+#import imutils
 
 
 class AI(threading.Thread):
@@ -40,15 +40,15 @@ class AI(threading.Thread):
         self.obid = 0
         self.send_count = 0
 
-        protopath = "{}/MobileNetSSD_deploy.prototxt".format(self.ROOT_PATH)
-        modelpath = "{}/MobileNetSSD_deploy.caffemodel".format(self.ROOT_PATH)
-        self.detector = cv2.dnn.readNetFromCaffe(prototxt=protopath, caffeModel=modelpath)
+        #protopath = "{}/MobileNetSSD_deploy.prototxt".format(self.ROOT_PATH)
+        #modelpath = "{}/MobileNetSSD_deploy.caffemodel".format(self.ROOT_PATH)
+        #self.detector = cv2.dnn.readNetFromCaffe(prototxt=protopath, caffeModel=modelpath)
         self.CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
                    "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
                    "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
                    "sofa", "train", "tvmonitor"]
 
-        self.tracker = CentroidTracker(maxDisappeared=80, maxDistance=90)
+        #self.tracker = CentroidTracker(maxDisappeared=80, maxDistance=90)
 
         for x in range(len(self.camera_number)):
             self.return_camera_test.append({
@@ -83,12 +83,12 @@ class AI(threading.Thread):
         self.ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
         self.genderList = ['Male', 'Female']
 
-        self.faceNet = cv2.dnn.readNet(faceModel, faceProto)
-        self.ageNet = cv2.dnn.readNet(ageModel, ageProto)
-        self.genderNet = cv2.dnn.readNet(genderModel, genderProto)
+        #self.faceNet = cv2.dnn.readNet(faceModel, faceProto)
+        #self.ageNet = cv2.dnn.readNet(ageModel, ageProto)
+        #self.genderNet = cv2.dnn.readNet(genderModel, genderProto)
         self.padding = 20
 
-    def non_max_suppression_fast(self, boxes, overlapThresh):
+    """def non_max_suppression_fast(self, boxes, overlapThresh):
         try:
             if len(boxes) == 0:
                 return []
@@ -126,8 +126,7 @@ class AI(threading.Thread):
 
             return boxes[pick].astype("int")
         except Exception as e:
-            print("Exception occurred in non_max_suppression : {}".format(e))
-
+            print("Exception occurred in non_max_suppression : {}".format(e))"""
     def test_camera_gender(self):
         cap = cv2.VideoCapture(self.gender_cam)
         hasFrame, frame = cap.read()
@@ -156,7 +155,7 @@ class AI(threading.Thread):
     def get_cameras_status(self):
         return self.return_camera_test
 
-    def get_gender_dect(self):
+    """def get_gender_dect(self):
         if self.send_count <= self.obid:
             self.send_count = self.send_count + 1
             return[True, False]
@@ -164,8 +163,9 @@ class AI(threading.Thread):
             return [False, False]
         # return [self.male_detected, self.female_detected]
         pass
+    """
 
-    def highlightFace(self, net, frame, conf_threshold):
+    """def highlightFace(self, net, frame, conf_threshold):
         frameOpencvDnn = frame.copy()
         frameHeight = frameOpencvDnn.shape[0]
         frameWidth = frameOpencvDnn.shape[1]
@@ -184,7 +184,7 @@ class AI(threading.Thread):
                 faceBoxes.append([x1, y1, x2, y2])
                 cv2.rectangle(frameOpencvDnn, (x1, y1), (x2, y2), (0, 255, 0), int(round(frameHeight / 150)), 8)
         return frameOpencvDnn, faceBoxes
-
+    """
     def reset_gender(self):
         self.male_detected = False
         self.female_detected = False
@@ -194,6 +194,7 @@ class AI(threading.Thread):
         _count = 0
         _timeLimit = 10
         while self.loop:
+            """
             if _count >= _timeLimit:
                 # write all bottle images
                 for x in range(len(self.camera_number)):
@@ -248,6 +249,7 @@ class AI(threading.Thread):
             _count = _count + 1
 
             # write gender image
+            
             cap = cv2.VideoCapture(self.gender_cam)
             ret, frame = cap.read()
             frame_detection = frame
@@ -354,8 +356,9 @@ class AI(threading.Thread):
             except Exception as error:
                 print("Error in face detection : ",error)
                 pass
+            """
 
 
 
-            cap.release()
+            #cap.release()
             # time.sleep(0.3)

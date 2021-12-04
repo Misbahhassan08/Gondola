@@ -42,7 +42,7 @@ class MainCode:
 
         self.arduino = HW()
 
-        self.url = 'https://thwack.34.107.149.108.nip.io'  # "http://34.68.28.163"
+        self.url = 'http://thwackstock.co.za:1880' #'https://thwack.34.107.149.108.nip.io'  # "http://34.68.28.163"
 
         self.screenshoot = '{}/screen.jpg'.format(self.ROOT_DIR)
 
@@ -82,7 +82,7 @@ class MainCode:
         pass
 
     def update_shelf_to_cloud(self):
-        try:
+        """try:
             # get_gender_dect
             _endpoint_gender = "{}/api/count_gender".format(self.url)
             g = self.bottle.get_gender_dect()
@@ -90,11 +90,13 @@ class MainCode:
             payload = json.dumps(payload)
             headers = {'Content-Type': 'application/json'}
             response = requests.request("POST", _endpoint_gender, headers=headers, data=payload)
-            # print("------ RESPONSE ----------------------------->", response)
+            print("------ RESPONSE ----------------------------->", response)
             self.bottle.reset_gender()
             pass
         except Exception as error:
+            print(error)
             pass
+        
         # scan new configs
         try:
             _endpoint_config = "{}/api/checkconfig".format(self.url)
@@ -111,7 +113,7 @@ class MainCode:
 
         except Exception as error:
             pass
-
+        """
         # update screenshot
         try:
             _id = self.ID
@@ -121,7 +123,7 @@ class MainCode:
             }
             data = {'ID': _id}
             r = requests.post(_endpoint, files=files, data=data)
-            # print(r)
+            print(r)
         except Exception as error:
             print(error)
             pass
@@ -137,7 +139,7 @@ class MainCode:
             # print(endpoint)
             headers = {'Content-Type': 'application/json'}
             response = requests.request("POST", endpoint, headers=headers, data=payload)
-            # print("------ RESPONSE ----------------------------->", response)
+            print("------ RESPONSE ----------------------------->", response)
         except Exception as error:
             print(error)  # pass
 
