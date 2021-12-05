@@ -1,6 +1,3 @@
-# print("Updating Hardware Please Wait... ")
-# while True:
-#	pass
 import install
 
 try:
@@ -17,7 +14,8 @@ try:
     from PIL import Image
 
 except Exception as error:
-    print('Installing libs now ..')
+    print('Installing libs now ..', error)
+    time.sleep(4)
     install.install_dep()
 
 import os
@@ -82,7 +80,7 @@ class MainCode:
         pass
 
     def update_shelf_to_cloud(self):
-        """try:
+        try:
             # get_gender_dect
             _endpoint_gender = "{}/api/count_gender".format(self.url)
             g = self.bottle.get_gender_dect()
@@ -113,7 +111,7 @@ class MainCode:
 
         except Exception as error:
             pass
-        """
+        
         # update screenshot
         try:
             _id = self.ID
