@@ -25,8 +25,8 @@ import getpass
 class MainCode:
     def __init__(self):
 
-        self.camera_gender = 5
-        self.shelf = [1, 2, 3, 4, 0]
+        self.camera_gender = 0
+        self.shelf = [1, 2, 3, 4, 5]
 
         self.gender_camera = False
         self.bottle_camera = False
