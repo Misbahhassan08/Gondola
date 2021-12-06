@@ -1,5 +1,8 @@
 import install
-
+import os
+os.environ['DISPLAY'] = ':0'
+os.environ['XAUTHORITY']='/run/user/1000/gdm/Xauthority'
+import pyautogui
 try:
     import cv2
     import time
@@ -10,7 +13,7 @@ try:
     import numpy as np
     from threading import Thread
     import json
-    import pyautogui
+    
     from PIL import Image
 
 except Exception as error:
