@@ -1,8 +1,6 @@
 import install
 import os
-os.environ['DISPLAY'] = ':0'
-os.environ['XAUTHORITY']='/run/user/1000/gdm/Xauthority'
-import pyautogui
+
 try:
     import cv2
     import time
@@ -15,6 +13,10 @@ try:
     import json
     
     from PIL import Image
+
+    os.environ['DISPLAY'] = ':0'
+    os.environ['XAUTHORITY'] = '/run/user/1000/gdm/Xauthority'
+    import pyautogui
 
 except Exception as error:
     print('Installing libs now ..', error)
