@@ -89,15 +89,15 @@ class MainCode:
 
     def update_shelf_to_cloud(self):
         try:
-            # get_gender_dect
-            _endpoint_gender = "{}/api/count_gender".format(self.url)
-            g = self.bottle.get_gender_dect()
-            payload = {'gender': g, "StandID": self.ID}
-            payload = json.dumps(payload)
-            headers = {'Content-Type': 'application/json'}
-            response = requests.request("POST", _endpoint_gender, headers=headers, data=payload)
-            print("------ RESPONSE ----------------------------->", response)
-            self.bottle.reset_gender()
+            ## get_gender_dect
+            #_endpoint_gender = "{}/api/count_gender".format(self.url)
+            #g = self.bottle.get_gender_dect()
+            #payload = {'gender': g, "StandID": self.ID}
+            #payload = json.dumps(payload)
+            #headers = {'Content-Type': 'application/json'}
+            #response = requests.request("POST", _endpoint_gender, headers=headers, data=payload)
+            #print("------ RESPONSE ----------------------------->", response)
+            #self.bottle.reset_gender()
             pass
         except Exception as error:
             print(error)
@@ -105,16 +105,17 @@ class MainCode:
         
         # scan new configs
         try:
-            _endpoint_config = "{}/api/checkconfig".format(self.url)
-            payload = {'Check_Config': True}
-            payload = json.dumps(payload)
+            #_endpoint_config = "{}/api/checkconfig".format(self.url)
+            #payload = {'Check_Config': True}
+            #payload = json.dumps(payload)
             #print(payload)
             #print(_endpoint_config)
-            headers = {'Content-Type': 'application/json'}
-            response = requests.request("POST", _endpoint_config, headers=headers, data=payload)
+            #headers = {'Content-Type': 'application/json'}
+            #response = requests.request("POST", _endpoint_config, headers=headers, data=payload)
             #print("------ RESPONSE ----------------------------->", response)
 
             # if reponse is true then check updated updations , color configs, card configs
+            pass
 
 
         except Exception as error:
