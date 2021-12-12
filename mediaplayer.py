@@ -70,7 +70,7 @@ class mediaplayer(threading.Thread):
                 pass
             else:
                 if self.v == 0:
-                    os.system('sudo wget http://www.ilogic.co.za/downloads/1.mp4 -P {}/data/ '.format(self.ROOT_DIR))
+                    os.system('wget http://www.ilogic.co.za/downloads/1.mp4 -P {}/data/ '.format(self.ROOT_DIR))
                     self.v = 1
         pass
 
