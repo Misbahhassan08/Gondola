@@ -9,8 +9,8 @@ import threading
 class mediaplayer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-        video_path = '{}/data/1.mp4'.format(ROOT_DIR)
+        self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+        video_path = '{}/data/1.mp4'.format(self.ROOT_DIR)
         self.screen_id = 0
         self.fps = 31
 
@@ -67,6 +67,8 @@ class mediaplayer(threading.Thread):
                     print("error : ", error)
                     pass
                 pass
+            else:
+                os.system('sudo wget http://www.ilogic.co.za/downloads/1.mp4 -P {}/data/ '.format(self.ROOT_DIR))
         pass
 
     pass
