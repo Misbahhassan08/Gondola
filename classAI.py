@@ -10,10 +10,12 @@ import imutils
 import os
 # os.environ['LD_PRELOAD'] = '/usr/lib/aarch64-linux-gnu/libgomp.so.1'
 
-from HumanTracker.common.ImageHelper import ImageHelper
-from HumanTracker.Tracker import Tracker
+# from HumanTracker.common.ImageHelper import ImageHelper
+# from HumanTracker.Tracker import Tracker
 import cv2
-from dotenv import load_dotenv
+
+
+# from dotenv import load_dotenv
 
 
 class AI(threading.Thread):
@@ -57,16 +59,16 @@ class AI(threading.Thread):
         self.loop = True
 
         self.screenshoot = '{}/screen.jpg'.format(self.ROOT_PATH)
-        execution_provider = os.environ.get(
-            'EXECUTION_PROVIDER', 'CUDAExecutionProvider')
-        self.match_thresh = os.environ.get('MATCH_THRESH', 0.6)
-        self.track_thresh = os.environ.get('TRACK_THRESH', 0.4)
-        self.min_box_area = os.environ.get('MIN_BOX_AREA', 100000)
+        # execution_provider = os.environ.get(
+        #    'EXECUTION_PROVIDER', 'CUDAExecutionProvider')
+        # self.match_thresh = os.environ.get('MATCH_THRESH', 0.6)
+        # self.track_thresh = os.environ.get('TRACK_THRESH', 0.4)
+        # self.min_box_area = os.environ.get('MIN_BOX_AREA', 100000)
 
-        print("Model Path: " + os.environ.get('MODEL_PATH'))
-        self.tracker = Tracker(min_face_area=2000, execution_provider=execution_provider,
-                          match_thresh=self.match_thresh, track_thresh=self.track_thresh, min_box_area=self.min_box_area,
-                          model_path=os.environ.get('MODEL_PATH'))
+        # print("Model Path: " + os.environ.get('MODEL_PATH'))
+        # self.tracker = Tracker(min_face_area=2000, execution_provider=execution_provider,
+        #                  match_thresh=self.match_thresh, track_thresh=self.track_thresh, min_box_area=self.min_box_area,
+        #                  model_path=os.environ.get('MODEL_PATH'))
 
     def test_camera_gender(self):
         cap = cv2.VideoCapture(self.gender_cam)
@@ -159,13 +161,14 @@ class AI(threading.Thread):
             cap = cv2.VideoCapture(self.gender_cam)
             ret, frame = cap.read()
             if ret:
-                self.tracker.process(frame)
+                # self.tracker.process(frame)
                 # show total at the bottom of the image
-                cv2.putText(frame, " M: {}, F: {}: U: {}".format(self.tracker.male, self.tracker.female, self.tracker.unknown),
-                            (200, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-                cv2.putText(frame, str(self.tracker.total), (10,
-                                                        frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 255),
-                            3)
+                # cv2.putText(frame, " M: {}, F: {}: U: {}".format(self.tracker.male, self.tracker.female, self.tracker.unknown),
+                #            (200, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+                # cv2.putText(frame, str(self.tracker.total), (10,
+                #                                        frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 255),
+                #            3)
+                pass
 
             frame_detection = frame
             im_pil = Image.fromarray(frame_detection)
