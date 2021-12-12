@@ -3,37 +3,42 @@ import cv2
 import screeninfo
 import os
 
+screen_id = 0
+is_color = False
 
+# get the size of the screen
+screen = screeninfo.get_monitors()[screen_id]
+width, height = screen.width, screen.height
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+video_path = '{}/data/1.mp4'.format(ROOT_DIR)
+vide0 = cv2.VideoCapture(video_path)
+frame = []
+_frame = 0
+while True:
+    print(_frame)
+    et, image = vide0.read()
+    if et:
+        frame.append(image)
+        _frame = _frame + 1
+    if _frame >= 1154:
+        break
+    pass
+vide0.release()
 if __name__ == '__main__':
-    screen_id = 0
-    is_color = False
-
-    # get the size of the screen
-    screen = screeninfo.get_monitors()[screen_id]
-    width, height = screen.width, screen.height
-    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-    manImage1 = '{}/gender_files/Input_images/b1m.jpg'.format(ROOT_DIR)
-
-    # create image
-    if is_color:
-        image = np.ones((height, width, 3), dtype=np.float32)
-        image[:10, :10] = 0  # black at top-left corner
-        image[height - 10:, :10] = [1, 0, 0]  # blue at bottom-left
-        image[:10, width - 10:] = [0, 1, 0]  # green at top-right
-        image[height - 10:, width - 10:] = [0, 0, 1]  # red at bottom-right
-    else:
-        image = np.ones((height, width), dtype=np.float32)
-        image[0, 0] = 0  # top-left corner
-        image[height - 2, 0] = 0  # bottom-left
-        image[0, width - 2] = 0  # top-right
-        image[height - 2, width - 2] = 0  # bottom-right
-
     window_name = 'projector'
-    cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
-    cv2.moveWindow(window_name, screen.x - 1, screen.y - 1)
-    cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,
-                          cv2.WINDOW_FULLSCREEN)
-    image = cv2.imread(manImage1)
-    cv2.imshow(window_name, image)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    i = 0
+    while True:
+        cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
+        cv2.moveWindow(window_name, screen.x - 1, screen.y - 1)
+        cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,
+                              cv2.WINDOW_FULLSCREEN)
+        if i == 1154:
+            i = 0
+        else:
+            print(i)
+            try:
+                cv2.imshow(window_name, frame[i])
+                cv2.waitKey(40)
+                i = i + 1
+            except:
+                pass

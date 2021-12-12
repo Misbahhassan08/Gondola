@@ -1,0 +1,13 @@
+opencv-python
+onnx==1.9.0
+#Cython
+torch
+torchvision
+#pycocotools==2.0.3
+scipy
+loguru
+thop
+lap
+#cython_bbox==0.1.3
+#mediapipe
+#deepface

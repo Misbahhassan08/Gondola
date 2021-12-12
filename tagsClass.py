@@ -28,12 +28,16 @@ class HW(threading.Thread):
         self.screen_Fails = False
 
         self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.video_path = '{}/data/1.mp4'.format(self.ROOT_DIR)
+        self.video = cv2.VideoCapture(self.video_path)
+        self.counter = 0
 
         # get the size of the screen
         try:
             self.screen_id = 0
             self.screen = screeninfo.get_monitors()[self.screen_id]
             self.width, self.height = self.screen.width, self.screen.height
+            pass
         except Exception as error:
             while True:
                 print("********************************** CONNECTING SCREEEN ****************************************")
@@ -58,20 +62,6 @@ class HW(threading.Thread):
         cv2.setWindowProperty(self.window_name, cv2.WND_PROP_FULLSCREEN,
                               cv2.WINDOW_FULLSCREEN)
 
-        self.manImage1 = '{}/gender_files/Input_images/b1m.jpg'.format(self.ROOT_DIR)
-        self.womanImage1 = '{}/gender_files/Input_images/b1f.jpg'.format(self.ROOT_DIR)
-
-        self.manImage2 = '{}/gender_files/Input_images/b2m.jpg'.format(self.ROOT_DIR)
-        self.womanImage2 = '{}/gender_files/Input_images/b2f.jpg'.format(self.ROOT_DIR)
-
-        self.image = cv2.imread(self.manImage1)
-        for i in range(10):
-            cv2.imshow(self.window_name, self.image)
-            cv2.waitKey(1)
-
-        self.mf = [True, False]
-        self.values = [True, False]
-
         try:
             self.ser = serial.Serial("/dev/ttyACM0", 115200)
         except Exception as error:
@@ -89,37 +79,24 @@ class HW(threading.Thread):
     def run(self):
 
         while True:
-            file = open("gender.txt", mode="r", errors="strict")
-            gender = file.readline()
-            file.close()
-            if gender == 'Male':
-                self.mf = [True, False]
-                pass
-            elif gender == 'Female':
-                self.mf = [False, True]
-                pass
             self.values = self.gettags()
             print("TAG1: {}, TAG2: {}".format(self.values[0], self.values[1]))
-            if self.mf[0]:
-                if self.values[0]:
-                    self.image = cv2.imread(self.manImage1)
-                elif self.values[1]:
-                    self.image = cv2.imread(self.manImage2)
-                    # image = cv2.resize(image,(width,height))
 
-            if self.mf[1]:
-                if self.values[0]:
-                    self.image = cv2.imread(self.womanImage1)
-                    # image = cv2.resize(image,(width,height))
-                elif self.values[1]:
-                    self.image = cv2.imread(self.womanImage2)
-                    # image = cv2.resize(image,(width,height))
-                else:
-                    self.image = cv2.imread(self.womanImage1)
-
-            for i in range(10):
-                cv2.imshow(self.window_name, self.image)
-                cv2.waitKey(1)
+            et, imag = self.video.read()
+            if et:
+                try:
+                    f = self.video.get(cv2.CAP_PROP_FRAME_COUNT)
+                    self.counter = self.counter + 1
+                    if self.counter >= f:
+                        self.video.set(cv2.CAP_PROP_POS_FRAMES, 1)
+                        self.counter = 1
+                        pass
+                    cv2.imshow(self.window_name, imag)
+                    cv2.waitKey(35)
+                except Exception as error:
+                    print("error : ", error)
+                    pass
+                pass
             if not self.port_fail:
                 if self.ser.in_waiting > 0:
                     rx_data = self.ser.readline().decode("utf-8").strip()

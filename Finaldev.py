@@ -4,8 +4,9 @@ import os
 try:
     import cv2
     import time
-    from tagsClass import HW
+    #from tagsClass import HW
     from classAI import AI
+    from mediaplayer import mediaplayer
 
     import requests
     import numpy as np
@@ -14,8 +15,8 @@ try:
     
     from PIL import Image
 
-    os.environ['DISPLAY'] = ':0'
-    os.environ['XAUTHORITY'] = '/run/user/1000/gdm/Xauthority'
+    #os.environ['DISPLAY'] = ':0'
+    #os.environ['XAUTHORITY'] = '/run/user/1000/gdm/Xauthority'
     import pyautogui
 
 except Exception as error:
@@ -43,7 +44,9 @@ class MainCode:
 
         self.bottle = AI(self.ROOT_DIR, cam_number=self.shelf, gender_cam=self.camera_gender, threshold=0.01)
 
-        self.arduino = HW()
+        #self.arduino = HW()
+        self.md = mediaplayer()
+        self.md.start()
 
         self.url = 'http://thwackstock.co.za:1880' #'https://thwack.34.107.149.108.nip.io'  # "http://34.68.28.163"
 
@@ -70,7 +73,7 @@ class MainCode:
             stat = self.check_bottle_cameras()
             if stat:
                 print('All bottle Cameras Run Perfectly')
-                self.run_tagsCalss()
+                #self.run_tagsCalss()
                 self.run_bottles_class()
 
         except Exception as error:
@@ -134,7 +137,7 @@ class MainCode:
         # update logs
         try:
             bt = self.bottle.get_cameras_status()
-            log = {'Data': bt, 'Hardware': self.arduino.getfails()}
+            log = {}#{'Data': bt, 'Hardware': self.arduino.getfails()}
             endpoint = "{}/api/stand_status".format(self.url)
             payload = {'Stand': self.ID, 'Logs': log}
             payload = json.dumps(payload)
@@ -156,10 +159,6 @@ class MainCode:
 
     def run_bottles_class(self):
         self.bottle.start()
-        pass
-
-    def run_tagsCalss(self):
-        self.arduino.start()
         pass
 
 
