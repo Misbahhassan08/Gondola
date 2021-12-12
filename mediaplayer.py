@@ -13,6 +13,7 @@ class mediaplayer(threading.Thread):
         video_path = '{}/data/1.mp4'.format(self.ROOT_DIR)
         self.screen_id = 0
         self.fps = 31
+        self. v = 0
 
         # get the size of the screen
         try:
@@ -68,7 +69,9 @@ class mediaplayer(threading.Thread):
                     pass
                 pass
             else:
-                os.system('sudo wget http://www.ilogic.co.za/downloads/1.mp4 -P {}/data/ '.format(self.ROOT_DIR))
+                if self.v == 0:
+                    os.system('sudo wget http://www.ilogic.co.za/downloads/1.mp4 -P {}/data/ '.format(self.ROOT_DIR))
+                    self.v = 1
         pass
 
     pass
