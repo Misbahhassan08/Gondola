@@ -70,6 +70,7 @@ class mediaplayer(threading.Thread):
                     os.system('wget http://www.ilogic.co.za/downloads/1.mp4 -P {}/data/ '.format(self.ROOT_DIR))
                     self.video = cv2.VideoCapture(self.video_path)
                     self.video.set(cv2.CAP_PROP_POS_FRAMES, 1)
+                    self.counter = 1
                     self.v = 1
         pass
 
