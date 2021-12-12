@@ -10,7 +10,7 @@ class mediaplayer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-        video_path = '{}/data/1.mp4'.format(self.ROOT_DIR)
+        self.video_path = '{}/data/1.mp4'.format(self.ROOT_DIR)
         self.screen_id = 0
         self.fps = 31
         self. v = 0
@@ -38,10 +38,7 @@ class mediaplayer(threading.Thread):
 
                 pass
             pass
-
-        ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.video_path = '{}/data/1.mp4'.format(ROOT_DIR)
-        self.video = cv2.VideoCapture(video_path)
+        self.video = cv2.VideoCapture(self.video_path)
         self.window_name = 'projector'
         self.counter = 0
 
@@ -71,6 +68,8 @@ class mediaplayer(threading.Thread):
             else:
                 if self.v == 0:
                     os.system('wget http://www.ilogic.co.za/downloads/1.mp4 -P {}/data/ '.format(self.ROOT_DIR))
+                    self.video = cv2.VideoCapture(self.video_path)
+                    self.video.set(cv2.CAP_PROP_POS_FRAMES, 1)
                     self.v = 1
         pass
 
